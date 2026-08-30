@@ -1,0 +1,86 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 
+    Light Mode Theme (Default)
+    These brushes are the light-mode equivalents of DarkTheme.xaml keys.
+    -->
+
+    <!-- Core Surface Colors -->
+    <SolidColorBrush x:Key="ThemeBgBrush" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="ThemeSurfaceBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeCardBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeCardHoverBrush" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="ThemeBorderBrush" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="ThemeBorderSubtleBrush" Color="#F1F5F9" />
+
+    <!-- Text Colors -->
+    <SolidColorBrush x:Key="ThemeTextPrimaryBrush" Color="#0F172A" />
+    <SolidColorBrush x:Key="ThemeTextSecondaryBrush" Color="#475569" />
+    <SolidColorBrush x:Key="ThemeTextMutedBrush" Color="#94A3B8" />
+    <SolidColorBrush x:Key="ThemeTextInverseBrush" Color="#FFFFFF" />
+
+    <!-- Sidebar -->
+    <SolidColorBrush x:Key="ThemeSidebarBgBrush" Color="#1E293B" />
+    <SolidColorBrush x:Key="ThemeSidebarItemHoverBrush" Color="#334155" />
+    <SolidColorBrush x:Key="ThemeSidebarItemActiveBrush" Color="#1D4ED8" />
+    <SolidColorBrush x:Key="ThemeSidebarTextBrush" Color="#CBD5E1" />
+    <SolidColorBrush x:Key="ThemeSidebarTextActiveBrush" Color="#FFFFFF" />
+
+    <!-- Top Bar -->
+    <SolidColorBrush x:Key="ThemeTopBarBgBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeTopBarBorderBrush" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="ThemeTopBarTextBrush" Color="#0F172A" />
+
+    <!-- Accent -->
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="#2563EB" />
+    <SolidColorBrush x:Key="ThemeAccentHoverBrush" Color="#1D4ED8" />
+    <SolidColorBrush x:Key="ThemeAccentGreenBrush" Color="#16A34A" />
+    <SolidColorBrush x:Key="ThemeAccentAmberBrush" Color="#D97706" />
+    <SolidColorBrush x:Key="ThemeAccentRedBrush" Color="#DC2626" />
+
+    <!-- Input Controls -->
+    <SolidColorBrush x:Key="ThemeInputBgBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeInputBorderBrush" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="ThemeInputTextBrush" Color="#0F172A" />
+    <SolidColorBrush x:Key="ThemeInputPlaceholderBrush" Color="#94A3B8" />
+
+    <!-- DataGrid -->
+    <SolidColorBrush x:Key="ThemeGridHeaderBgBrush" Color="#0F172A" />
+    <SolidColorBrush x:Key="ThemeGridHeaderTextBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeGridRowBgBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeGridRowAltBgBrush" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="ThemeGridRowHoverBrush" Color="#F1F5F9" />
+    <SolidColorBrush x:Key="ThemeGridRowSelectedBrush" Color="#EFF6FF" />
+    <SolidColorBrush x:Key="ThemeGridRowSelectedTextBrush" Color="#1D4ED8" />
+    <SolidColorBrush x:Key="ThemeGridBorderBrush" Color="#F1F5F9" />
+    <SolidColorBrush x:Key="ThemeSelectionSurfaceBrush" Color="#EEF2FF" />
+    <SolidColorBrush x:Key="ThemeSelectionBorderBrush" Color="#4F46E5" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#2563EB" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#DBEAFE" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#1E3A8A" />
+
+    <!-- Dashboard Background Image (no image in light mode, just bg color) -->
+    <SolidColorBrush x:Key="ThemeDashboardBgBrush" Color="#F8FAFC" />
+
+    <!-- Reminder card palettes (light mode) -->
+    <SolidColorBrush x:Key="ReminderUrgentBgBrush" Color="#FEF2F2" />
+    <SolidColorBrush x:Key="ReminderUrgentBorderBrush" Color="#FCA5A5" />
+    <SolidColorBrush x:Key="ReminderUrgentAccentBrush" Color="#DC2626" />
+    <SolidColorBrush x:Key="ReminderUrgentBtnBrush" Color="#EF4444" />
+
+    <SolidColorBrush x:Key="ReminderAttentionBgBrush" Color="#FFFBEB" />
+    <SolidColorBrush x:Key="ReminderAttentionBorderBrush" Color="#FCD34D" />
+    <SolidColorBrush x:Key="ReminderAttentionAccentBrush" Color="#D97706" />
+    <SolidColorBrush x:Key="ReminderAttentionBtnBrush" Color="#F59E0B" />
+
+    <SolidColorBrush x:Key="ReminderPlanBgBrush" Color="#ECFDF5" />
+    <SolidColorBrush x:Key="ReminderPlanBorderBrush" Color="#86EFAC" />
+    <SolidColorBrush x:Key="ReminderPlanAccentBrush" Color="#059669" />
+    <SolidColorBrush x:Key="ReminderPlanBtnBrush" Color="#10B981" />
+
+    <!-- Status Bar -->
+    <SolidColorBrush x:Key="ThemeStatusBarBgBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeStatusBarTextBrush" Color="#64748B" />
+
+</ResourceDictionary>

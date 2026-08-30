@@ -1,0 +1,24 @@
+﻿## Build and Publish outputs
+[Bb]in/
+[Oo]bj/
+publish_standalone/
+publish_sf/
+installer_output/
+*.lscache
+
+## Visual Studio / IDE
+.vs/
+*.user
+*.userprefs
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+.vscode/
+
+## OS Files
+Thumbs.db
+[Dd]esktop.ini
+.BIN/
+*.db-shm
+*.db-wal

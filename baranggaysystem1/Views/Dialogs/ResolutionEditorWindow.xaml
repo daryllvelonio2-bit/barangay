@@ -1,0 +1,110 @@
+<Window x:Class="baranggaysystem1.Views.Dialogs.ResolutionEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fa="clr-namespace:FontAwesome.Sharp;assembly=FontAwesome.Sharp"
+        Title="Resolution" Width="700" Height="760"
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource BaseWindowStyle}"
+        ShowInTaskbar="False" ResizeMode="NoResize"
+        Background="{DynamicResource ThemeCardHoverBrush}">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- Hidden elements referenced by code-behind -->
+    <StackPanel Grid.Row="0" Visibility="Collapsed">
+      <TextBlock Name="eyebrowText" Text="NEW RESOLUTION" />
+      <TextBlock Name="headerTitleText" Text="Draft a resolution or ordinance" />
+    </StackPanel>
+
+    <Grid Grid.Row="1" Margin="16,8">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- Row 0: Doc Type + Number + Year -->
+      <Grid Grid.Row="0" Margin="0,0,0,8">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Document Type" Style="{StaticResource LabelTextStyle}" />
+          <ComboBox Name="typeCombo" Style="{StaticResource StyledComboBoxStyle}" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="Document Number" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtNumber" Style="{StaticResource StyledTextBoxStyle}" MaxLength="50" />
+        </StackPanel>
+        <StackPanel Grid.Column="4">
+          <TextBlock Text="Series Year" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtYear" Style="{StaticResource StyledTextBoxStyle}" MaxLength="4" />
+        </StackPanel>
+      </Grid>
+
+      <!-- Row 1: Title -->
+      <StackPanel Grid.Row="1" Margin="0,0,0,8">
+        <TextBlock Text="Title" Style="{StaticResource LabelTextStyle}" />
+        <TextBox Name="txtTitle" Style="{StaticResource StyledTextBoxStyle}" MaxLength="300" />
+      </StackPanel>
+
+      <!-- Row 2: Short Description -->
+      <StackPanel Grid.Row="2" Margin="0,0,0,8">
+        <TextBlock Text="Short Description" Style="{StaticResource LabelTextStyle}" />
+        <TextBox Name="txtDescription" Style="{StaticResource StyledTextBoxStyle}" Height="56"
+                 TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Padding="6" />
+      </StackPanel>
+
+      <!-- Row 3: Full Text (fills remaining space) -->
+      <DockPanel Grid.Row="3" Margin="0,0,0,8">
+        <TextBlock Text="Full Text / Body" Style="{StaticResource LabelTextStyle}" DockPanel.Dock="Top" />
+        <TextBox Name="txtFullText" Style="{StaticResource StyledTextBoxStyle}"
+                 TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top" Padding="6"
+                 Height="Auto" MinHeight="80" />
+      </DockPanel>
+
+      <!-- Row 4: Effectivity + Author + Status -->
+      <Grid Grid.Row="4" Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Effectivity Date" Style="{StaticResource LabelTextStyle}" />
+          <DatePicker Name="dpEffectivity" Height="30" Padding="2" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="Authored By" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtAuthor" Style="{StaticResource StyledTextBoxStyle}" MaxLength="150" />
+        </StackPanel>
+        <StackPanel Grid.Column="4">
+          <TextBlock Text="Status" Style="{StaticResource LabelTextStyle}" />
+          <ComboBox Name="statusCombo" Style="{StaticResource StyledComboBoxStyle}" />
+        </StackPanel>
+      </Grid>
+    </Grid>
+
+    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}"
+            BorderThickness="0,1,0,0" Padding="16,10">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Width="90" Height="32"
+                Margin="0,0,10,0" IsCancel="True" />
+        <Button Name="btnSave" Content="Save Resolution" Style="{StaticResource PrimaryButtonStyle}"
+                Width="140" Height="32" IsDefault="True" Click="BtnSave_Click" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

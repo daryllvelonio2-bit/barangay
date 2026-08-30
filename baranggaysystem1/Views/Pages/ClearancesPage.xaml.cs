@@ -1,0 +1,673 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+using baranggaysystem1.helper;
+using baranggaysystem1.Services;
+using baranggaysystem1.ViewModels;
+using baranggaysystem1.ViewModels.Navigation;
+using baranggaysystem1.Views.Controls;
+using baranggaysystem1.Views.Dialogs;
+using baranggaysystem1.Views.Panels;
+using FontAwesome.Sharp;
+
+namespace baranggaysystem1.Views.Pages;
+
+public partial class ClearancesPage : UserControl, IRefreshable
+{
+	private readonly CertificateRequestService _certificateRequestService = new CertificateRequestService();
+
+	private DataTable? _data;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public ClearancesPage()
+	{
+		InitializeComponent();
+		base.Loaded += async delegate
+		{
+			await LoadAsync();
+		};
+	}
+
+	public ClearancesPage(string route)
+		: this()
+	{
+	}
+
+	private async Task LoadAsync()
+	{
+		try
+		{
+			_data = await _certificateRequestService.GetQueueAsync();
+			EnrichDisplayTable(_data);
+			ApplyDataToGrid(_data);
+			PopulateFilterOptions(_data);
+			ApplyFilters();
+		}
+		catch (Exception ex)
+		{
+			AppLogger.LogError("ClearancesPage load failed.", ex);
+			mainGrid.ItemsSource = null;
+			emptyLabel.Text = "Failed to load clearance requests. Please refresh.";
+			emptyState.Visibility = Visibility.Visible;
+			footerCountLabel.Text = "Unable to load queue.";
+			recordCountLabel.Text = "Queue unavailable";
+			visibleQueueMetric.Text = "0";
+			pendingQueueMetric.Text = "0";
+			releasedQueueMetric.Text = "0";
+			attentionQueueMetric.Text = "0";
+			tableVisibleLabel.Text = "0 visible";
+			tableSelectionLabel.Text = "No selection";
+			tableMetaLabel.Text = "Queue data is temporarily unavailable.";
+			UpdateSelectionState(null);
+		}
+	}
+
+	private void ApplyDataToGrid(DataTable? table)
+	{
+		if (table == null || table.Rows.Count == 0)
+		{
+			mainGrid.ItemsSource = null;
+			emptyLabel.Text = "No clearance or certification requests found.";
+			emptyState.Visibility = Visibility.Visible;
+			footerCountLabel.Text = "No clearance requests found.";
+			recordCountLabel.Text = "No requests on record.";
+			visibleQueueMetric.Text = "0";
+			pendingQueueMetric.Text = "0";
+			releasedQueueMetric.Text = "0";
+			attentionQueueMetric.Text = "0";
+			tableVisibleLabel.Text = "0 visible";
+			tableSelectionLabel.Text = "No selection";
+			tableMetaLabel.Text = "Submit a request to start the queue.";
+			UpdateSelectionState(null);
+		}
+		else
+		{
+			emptyState.Visibility = Visibility.Collapsed;
+			mainGrid.ItemsSource = table.DefaultView;
+		}
+	}
+
+	private void PopulateFilterOptions(DataTable? table)
+	{
+		typeFilter.Items.Clear();
+		typeFilter.Items.Add("All Document Types");
+		statusFilter.Items.Clear();
+		statusFilter.Items.Add("All Status");
+		if (table != null)
+		{
+			foreach (string item in from value in (from row in table.AsEnumerable()
+					select Convert.ToString(row["certification_type"]) ?? string.Empty into value
+					where !string.IsNullOrWhiteSpace(value)
+					select value).Distinct<string>(StringComparer.OrdinalIgnoreCase)
+				orderby value
+				select value)
+			{
+				typeFilter.Items.Add(item);
+			}
+			foreach (string item2 in from value in (from row in table.AsEnumerable()
+					select Convert.ToString(row["status"]) ?? string.Empty into value
+					where !string.IsNullOrWhiteSpace(value)
+					select value).Distinct<string>(StringComparer.OrdinalIgnoreCase)
+				orderby value
+				select value)
+			{
+				statusFilter.Items.Add(item2);
+			}
+		}
+		typeFilter.SelectedIndex = 0;
+		statusFilter.SelectedIndex = 0;
+	}
+
+	private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+	{
+		ApplyFilters();
+	}
+
+	private void Filter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (base.IsLoaded)
+		{
+			ApplyFilters();
+		}
+	}
+
+	private void ApplyFilters()
+	{
+		if (_data == null)
+		{
+			return;
+		}
+		List<string> list = new List<string>();
+		string value = searchBox.Text.Trim();
+		if (!string.IsNullOrWhiteSpace(value))
+		{
+			string escaped = EscapeForRowFilter(value);
+			string[] source = new string[12]
+			{
+				"tracking_code", "document_no", "verification_token", "resident_name", "certification_type", "purpose_display", "status", "requested_on", "released_on_display", "expires_on",
+				"or_number_display", "fee_display"
+			};
+			list.Add("(" + string.Join(" OR ", source.Select((string column) => $"Convert([{column}], 'System.String') LIKE '%{escaped}%'")) + ")");
+		}
+		if (typeFilter.SelectedItem is string text && !string.Equals(text, "All Document Types", StringComparison.OrdinalIgnoreCase))
+		{
+			list.Add("[certification_type] = '" + EscapeForRowFilter(text) + "'");
+		}
+		if (statusFilter.SelectedItem is string text2 && !string.Equals(text2, "All Status", StringComparison.OrdinalIgnoreCase))
+		{
+			list.Add("[status] = '" + EscapeForRowFilter(text2) + "'");
+		}
+		_data.DefaultView.RowFilter = string.Join(" AND ", list);
+		List<DataRowView> list2 = _data.DefaultView.Cast<DataRowView>().ToList();
+		int count = list2.Count;
+		int count2 = _data.Rows.Count;
+		int num = list2.Count((DataRowView row) => IsPendingStatus(Convert.ToString(row["status"])));
+		int num2 = list2.Count((DataRowView row) => IsStatus(row, "RELEASED"));
+		int num3 = list2.Count((DataRowView row) => IsStatus(row, "REJECTED") || IsStatus(row, "CANCELLED"));
+		emptyLabel.Text = ((count == 0) ? "No requests match the current filters." : "No clearance or certification requests found.");
+		emptyState.Visibility = ((count != 0) ? Visibility.Collapsed : Visibility.Visible);
+		visibleQueueMetric.Text = count.ToString("N0", CultureInfo.InvariantCulture);
+		pendingQueueMetric.Text = num.ToString("N0", CultureInfo.InvariantCulture);
+		releasedQueueMetric.Text = num2.ToString("N0", CultureInfo.InvariantCulture);
+		attentionQueueMetric.Text = num3.ToString("N0", CultureInfo.InvariantCulture);
+		footerCountLabel.Text = ((count == count2) ? $"Showing {count:N0} request(s)" : $"Showing {count:N0} of {count2:N0} request(s)");
+		recordCountLabel.Text = ((count == count2) ? $"{count:N0} request(s) in the queue" : $"{count:N0} filtered request(s) in view");
+		tableVisibleLabel.Text = $"{count:N0} visible";
+		tableMetaLabel.Text = ((count == count2) ? "Browse the live queue, then select a request to release or cancel." : $"Filters are showing a focused subset from {count2:N0} loaded request(s).");
+		DataRowView selectedRow = mainGrid.SelectedItem as DataRowView;
+		if (selectedRow == null || !list2.Any((DataRowView row) => row.Row == selectedRow.Row))
+		{
+			mainGrid.SelectedItem = null;
+			UpdateSelectionState(null);
+		}
+		else
+		{
+			UpdateSelectionState(selectedRow);
+		}
+	}
+
+	private void MainGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		UpdateSelectionState(mainGrid.SelectedItem as DataRowView);
+	}
+
+	private void BtnClearSelection_Click(object sender, RoutedEventArgs e)
+	{
+		mainGrid.UnselectAll();
+		UpdateSelectionState(null);
+	}
+
+	private async void BtnRefresh_Click(object sender, RoutedEventArgs e)
+	{
+		await LoadAsync();
+	}
+
+	private async void BtnIssue_Click(object sender, RoutedEventArgs e)
+	{
+		if (!(mainGrid.SelectedItem is DataRowView dataRowView))
+		{
+			DialogService.Instance.ShowWarning("Select a request to release first.");
+			return;
+		}
+		string text = Convert.ToString(dataRowView["status"]) ?? "SUBMITTED";
+		if (text.Equals("CANCELLED", StringComparison.OrdinalIgnoreCase))
+		{
+			DialogService.Instance.ShowWarning("Cancelled requests cannot be released.");
+			return;
+		}
+		if (text.Equals("RELEASED", StringComparison.OrdinalIgnoreCase))
+		{
+			DialogService.Instance.ShowInfo("This document has already been released.");
+			return;
+		}
+		int requestId = Convert.ToInt32(dataRowView["doc_request_id"]);
+		string trackingCode = Convert.ToString(dataRowView["tracking_code"]) ?? "Request";
+		string residentName = Convert.ToString(dataRowView["resident_name"]) ?? "Resident";
+		if (text.Equals("SUBMITTED", StringComparison.OrdinalIgnoreCase))
+		{
+			if (!Permissions.CanApproveCertificates)
+			{
+				DialogService.Instance.ShowWarning("This request must be approved by an authorized staff member before release.");
+				return;
+			}
+			if (!DialogService.Instance.Confirm(
+				$"Start staff review for {trackingCode}?",
+				"Start Review"))
+			{
+				return;
+			}
+			try
+			{
+				await _certificateRequestService.StartReviewAsync(requestId, trackingCode);
+				await LoadAsync();
+				DialogService.Instance.ShowInfo("Review started. Verify the request, then approve it from the queue.");
+			}
+			catch (Exception ex)
+			{
+				AppLogger.LogError("Failed to start certificate review.", ex);
+				DialogService.Instance.ShowError(ex.Message);
+			}
+			return;
+		}
+		if (text.Equals("UNDER_REVIEW", StringComparison.OrdinalIgnoreCase))
+		{
+			if (!Permissions.CanApproveCertificates)
+			{
+				DialogService.Instance.ShowWarning("Only an authorized staff member can approve this request.");
+				return;
+			}
+			if (!DialogService.Instance.Confirm(
+				$"Approve {trackingCode} after completing the review?",
+				"Approve Request"))
+			{
+				return;
+			}
+			try
+			{
+				await _certificateRequestService.ApproveRequestAsync(requestId, trackingCode);
+				await LoadAsync();
+				DialogService.Instance.ShowInfo("Request approved and ready for release.");
+			}
+			catch (Exception ex)
+			{
+				AppLogger.LogError("Failed to approve certificate request.", ex);
+				DialogService.Instance.ShowError(ex.Message);
+			}
+			return;
+		}
+		if (!text.Equals("APPROVED", StringComparison.OrdinalIgnoreCase) &&
+			!text.Equals("READY_FOR_RELEASE", StringComparison.OrdinalIgnoreCase))
+		{
+			DialogService.Instance.ShowWarning("Only approved requests can be released.");
+			return;
+		}
+
+		var issueForm = new CertificateFormPanel(CertificateDialogMode.Issue, requestId, loadExisting: true);
+
+		var saveButton = CreateFullscreenToolbarButton("Release & Print", IconChar.Print,
+			async (s, args) =>
+			{
+				if (await issueForm.TrySaveAsync())
+				{
+					NavigationService.Instance.NavigateBackFromFullscreen(
+						"Clearances", refreshOnReturn: true);
+				}
+			});
+
+		NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+		{
+			Title = $"Release: {trackingCode}",
+			Subtitle = $"{residentName} — Verify and finalize for release",
+			OriginRoute = "Clearances",
+			Content = issueForm,
+			Icon = IconChar.Stamp,
+			ToolbarItems = new List<UIElement> { saveButton },
+			ShowSideToolbar = false,
+			OnSaved = () => RefreshData()
+		});
+	}
+
+	private async void BtnCancel_Click(object sender, RoutedEventArgs e)
+	{
+		if (!(mainGrid.SelectedItem is DataRowView dataRowView))
+		{
+			DialogService.Instance.ShowWarning("Select a request to cancel first.");
+			return;
+		}
+		string text = Convert.ToString(dataRowView["status"]) ?? "SUBMITTED";
+		if (text.Equals("RELEASED", StringComparison.OrdinalIgnoreCase))
+		{
+			DialogService.Instance.ShowWarning("Released documents can no longer be cancelled.");
+			return;
+		}
+		if (text.Equals("CANCELLED", StringComparison.OrdinalIgnoreCase))
+		{
+			DialogService.Instance.ShowInfo("This request is already cancelled.");
+			return;
+		}
+		string text2 = Convert.ToString(dataRowView["tracking_code"]) ?? "the selected request";
+		var reasonPrompt = new ReasonPromptWindow(
+			"Cancel Request",
+			"Explain why " + text2 + " is being cancelled.",
+			"Cancel request")
+		{
+			Owner = Window.GetWindow(this)
+		};
+		if (reasonPrompt.ShowDialog() != true)
+		{
+			return;
+		}
+		try
+		{
+			await _certificateRequestService.CancelRequestAsync(
+				Convert.ToInt32(dataRowView["doc_request_id"]),
+				text2,
+				reasonPrompt.Reason);
+			await LoadAsync();
+		}
+		catch (Exception ex)
+		{
+			AppLogger.LogError("Failed to cancel certificate request.", ex);
+			DialogService.Instance.ShowError("Could not cancel the selected request.");
+		}
+	}
+
+	private void BtnAdd_Click(object sender, RoutedEventArgs e)
+	{
+		var requestForm = new CertificateFormPanel(CertificateDialogMode.Request);
+
+		var saveButton = CreateFullscreenToolbarButton("Submit Request", IconChar.PaperPlane,
+			async (s, args) =>
+			{
+				if (await requestForm.TrySaveAsync())
+				{
+					NavigationService.Instance.NavigateBackFromFullscreen(
+						"Clearances", refreshOnReturn: true);
+				}
+			});
+
+		NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+		{
+			Title = "New Certificate Request",
+			Subtitle = "Create a resident-linked document request for queue processing",
+			OriginRoute = "Clearances",
+			Content = requestForm,
+			Icon = IconChar.FileCirclePlus,
+			ToolbarItems = new List<UIElement> { saveButton },
+			ShowSideToolbar = false,
+			OnSaved = () => RefreshData()
+		});
+	}
+
+	private void BtnVerify_Click(object sender, RoutedEventArgs e)
+	{
+		FullscreenDialogNavigator.Open(
+			new DocumentVerificationWindow(),
+			"Verify Document",
+			"Search by tracking code, document number, verification token, or QR payload.",
+			"Clearances",
+			IconChar.ShieldAlt);
+	}
+
+	private void BtnVerifySelected_Click(object sender, RoutedEventArgs e)
+	{
+		if (!(mainGrid.SelectedItem is DataRowView dataRowView))
+		{
+			DialogService.Instance.ShowWarning("Select a request to open its verification details.");
+			return;
+		}
+		string trackingCode = Convert.ToString(dataRowView["tracking_code"]) ?? "Selected request";
+		FullscreenDialogNavigator.Open(
+			new DocumentVerificationWindow(Convert.ToInt32(dataRowView["doc_request_id"])),
+			"Verification Details",
+			trackingCode,
+			"Clearances",
+			IconChar.ShieldAlt);
+	}
+
+	private void BtnPrintPreview_Click(object sender, RoutedEventArgs e)
+	{
+		if (!(mainGrid.SelectedItem is DataRowView dataRowView))
+		{
+			DialogService.Instance.ShowWarning("Select a request to preview.");
+			return;
+		}
+		string status = Convert.ToString(dataRowView["status"]) ?? "SUBMITTED";
+		string residentName = Convert.ToString(dataRowView["resident_name"]) ?? "Resident";
+		string certType = Convert.ToString(dataRowView["certification_type"]) ?? "Barangay Clearance";
+		string purpose = Convert.ToString(dataRowView["purpose"]) ?? string.Empty;
+		string documentNo = Convert.ToString(dataRowView["document_no"]) ?? string.Empty;
+		string barangayName = SystemConfigService.GetBarangayName();
+		string officialName = SystemConfigService.GetSystemName();
+
+		var preview = new PrintPreviewWindow();
+		preview.BuildCertificatePreview(certType, residentName, purpose, documentNo, barangayName, officialName, DateTime.Now);
+		FullscreenDialogNavigator.Open(
+			preview,
+			"Certificate Preview",
+			$"{residentName} — {certType}",
+			"Clearances",
+			IconChar.Print);
+	}
+
+	private void UpdateSelectionState(DataRowView? row)
+	{
+		if (row == null)
+		{
+			contextActionBar.Visibility = Visibility.Collapsed;
+			tableSelectionLabel.Text = "No selection";
+			selectedRecordLabel.Text = "REQ-000001";
+			selectedRecordMetaLabel.Text = "Select a queue record to manage release or cancellation.";
+			selectedVerificationLabel.Text = "Verification details appear here once a request is selected.";
+			btnReleaseLabel.Text = "Release and Print";
+			btnRelease.IsEnabled = false;
+			btnCancel.IsEnabled = false;
+			btnVerifySelected.IsEnabled = false;
+			return;
+		}
+		string text = Convert.ToString(row["status"]) ?? "SUBMITTED";
+		string text2 = Convert.ToString(row["tracking_code"]) ?? "Unknown Request";
+		string value = Convert.ToString(row["resident_name"]) ?? "Resident";
+		string value2 = Convert.ToString(row["certification_type"]) ?? "Certificate";
+		string value3 = Convert.ToString(row["requested_on"]) ?? "Unknown request time";
+		string documentNo = Convert.ToString(row["document_no"]) ?? string.Empty;
+		string verificationToken = Convert.ToString(row["verification_token"]) ?? string.Empty;
+		string expiresOn = Convert.ToString(row["expires_on"]) ?? string.Empty;
+		selectedRecordLabel.Text = text2;
+		selectedRecordMetaLabel.Text = $"{value} | {value2} | Requested {value3}";
+		selectedVerificationLabel.Text = BuildVerificationSummary(text, documentNo, verificationToken, expiresOn);
+		tableSelectionLabel.Text = "Selected: " + text2;
+		bool submitted = text.Equals("SUBMITTED", StringComparison.OrdinalIgnoreCase);
+		bool underReview = text.Equals("UNDER_REVIEW", StringComparison.OrdinalIgnoreCase);
+		bool releasable = text.Equals("APPROVED", StringComparison.OrdinalIgnoreCase) ||
+			text.Equals("READY_FOR_RELEASE", StringComparison.OrdinalIgnoreCase);
+		btnReleaseLabel.Text = text.Equals("RELEASED", StringComparison.OrdinalIgnoreCase)
+			? "Already Released"
+			: text.Equals("CANCELLED", StringComparison.OrdinalIgnoreCase)
+				? "No Action"
+				: submitted
+					? "Start Review"
+					: underReview
+						? "Approve Request"
+					: releasable ? "Release and Print" : "No Action";
+		btnRelease.IsEnabled = ((submitted || underReview) && Permissions.CanApproveCertificates) ||
+			(releasable && Permissions.CanIssueCertificates);
+		btnCancel.IsEnabled = !text.Equals("RELEASED", StringComparison.OrdinalIgnoreCase) &&
+			!text.Equals("CANCELLED", StringComparison.OrdinalIgnoreCase) &&
+			Permissions.CanCancelCertificates;
+		btnVerifySelected.IsEnabled = true;
+		contextActionBar.Visibility = Visibility.Visible;
+	}
+
+	private static void EnrichDisplayTable(DataTable table)
+	{
+		EnsureStringColumn(table, "purpose_display");
+		EnsureStringColumn(table, "released_on_display");
+		EnsureStringColumn(table, "request_meta");
+		EnsureStringColumn(table, "resident_meta");
+		EnsureStringColumn(table, "fee_display");
+		EnsureStringColumn(table, "or_number_display");
+		EnsureStringColumn(table, "status_display");
+		EnsureStringColumn(table, "status_meta");
+		foreach (DataRow row in table.Rows)
+		{
+			string text = Convert.ToString(row["purpose"]) ?? string.Empty;
+			string text2 = Convert.ToString(row["released_on"]) ?? string.Empty;
+			string text3 = Convert.ToString(row["or_number"]) ?? string.Empty;
+			string status = Convert.ToString(row["status"]) ?? "SUBMITTED";
+			int value = ((row["doc_request_id"] != DBNull.Value) ? Convert.ToInt32(row["doc_request_id"], CultureInfo.InvariantCulture) : 0);
+			int num = ((row["resident_id"] != DBNull.Value) ? Convert.ToInt32(row["resident_id"], CultureInfo.InvariantCulture) : 0);
+			row["purpose_display"] = (string.IsNullOrWhiteSpace(text) ? "No purpose provided." : text.Trim());
+			row["released_on_display"] = (string.IsNullOrWhiteSpace(text2) ? "Awaiting release" : text2.Trim());
+			row["request_meta"] = (string.IsNullOrWhiteSpace(text3) ? $"Request #{value}" : ("OR " + text3.Trim()));
+			row["resident_meta"] = ((num > 0) ? $"Resident ID #{num}" : "Resident record");
+			row["fee_display"] = FormatCurrency(row["fee"]);
+			row["or_number_display"] = (string.IsNullOrWhiteSpace(text3) ? "No OR number recorded" : ("OR " + text3.Trim()));
+			row["status_display"] = ToStatusLabel(status);
+			row["status_meta"] = GetStatusMeta(status);
+		}
+	}
+
+	private static void EnsureStringColumn(DataTable table, string columnName)
+	{
+		if (!table.Columns.Contains(columnName))
+		{
+			table.Columns.Add(columnName, typeof(string));
+		}
+	}
+
+	private static bool IsPendingStatus(string? status)
+	{
+		if (!string.Equals(status, "SUBMITTED", StringComparison.OrdinalIgnoreCase))
+		{
+			return string.Equals(status, "APPROVED", StringComparison.OrdinalIgnoreCase);
+		}
+		return true;
+	}
+
+	private static bool IsStatus(DataRowView row, string status)
+	{
+		return string.Equals(Convert.ToString(row["status"]), status, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static string ToStatusLabel(string? status)
+	{
+		string text = (string.IsNullOrWhiteSpace(status) ? "SUBMITTED" : status.Trim());
+		return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text.ToLowerInvariant());
+	}
+
+	private static string GetStatusMeta(string? status)
+	{
+		if (string.IsNullOrWhiteSpace(status))
+		{
+			return "Awaiting queue review.";
+		}
+		return status.Trim().ToUpperInvariant() switch
+		{
+			"SUBMITTED" => "Queued for review and release preparation.", 
+			"APPROVED" => "Approved and ready for release handling.", 
+			"RELEASED" => "Completed, printed, and released.", 
+			"REJECTED" => "Needs follow-up or request correction.", 
+			"CANCELLED" => "Closed and removed from active processing.", 
+			_ => "Being tracked in the clearance queue.", 
+		};
+	}
+
+	private static string FormatCurrency(object value)
+	{
+		if (value == DBNull.Value)
+		{
+			return "PHP 0.00";
+		}
+		decimal value2 = Convert.ToDecimal(value, CultureInfo.InvariantCulture);
+		return $"PHP {value2:N2}";
+	}
+
+	private static string EscapeForRowFilter(string value)
+	{
+		return value.Replace("'", "''").Replace("[", "[[]").Replace("%", "[%]")
+			.Replace("*", "[*]");
+	}
+
+	private static string BuildVerificationSummary(string status, string documentNo, string verificationToken, string expiresOn)
+	{
+		if (!string.Equals(status, "RELEASED", StringComparison.OrdinalIgnoreCase))
+		{
+			return "Verification QR becomes available once the request is released.";
+		}
+		string value = (string.IsNullOrWhiteSpace(documentNo) ? "Released without a stored document number." : ("Document No: " + documentNo.Trim()));
+		string value2 = (string.IsNullOrWhiteSpace(verificationToken) ? "No verification token saved." : "Verification token and QR payload are available.");
+		string value3 = (string.IsNullOrWhiteSpace(expiresOn) ? "No expiry recorded." : ("Expires " + expiresOn.Trim() + "."));
+		return $"{value} | {value2} | {value3}";
+	}
+
+	#region IRefreshable Implementation
+
+	/// <summary>
+	/// Refreshes the page data after returning from a fullscreen view.
+	/// Implements IRefreshable to support automatic data refresh on back navigation.
+	/// Requirement 2.6: Module page refreshes data via IRefreshable.RefreshData().
+	/// </summary>
+	public void RefreshData()
+	{
+		_ = LoadAsync();
+	}
+
+	#endregion
+
+	#region Fullscreen View Helpers
+
+	/// <summary>
+	/// Creates a styled toolbar button for use in fullscreen view toolbars.
+	/// </summary>
+	private static Button CreateFullscreenToolbarButton(string label, IconChar icon, RoutedEventHandler clickHandler)
+	{
+		var iconBlock = new IconBlock
+		{
+			Icon = icon,
+			FontSize = 14,
+			Margin = new Thickness(0, 0, 6, 0),
+			VerticalAlignment = VerticalAlignment.Center
+		};
+
+		var textBlock = new TextBlock
+		{
+			Text = label,
+			VerticalAlignment = VerticalAlignment.Center,
+			FontSize = 12
+		};
+
+		var panel = new StackPanel
+		{
+			Orientation = Orientation.Horizontal
+		};
+		panel.Children.Add(iconBlock);
+		panel.Children.Add(textBlock);
+
+		var button = new Button
+		{
+			Content = panel,
+			Padding = new Thickness(12, 6, 12, 6),
+			Margin = new Thickness(0, 0, 4, 0),
+			MinHeight = 32,
+			Cursor = System.Windows.Input.Cursors.Hand
+		};
+
+		// Set accessibility name (Requirement 5.4)
+		System.Windows.Automation.AutomationProperties.SetName(button, label);
+
+		button.Click += clickHandler;
+		return button;
+	}
+
+	#endregion
+}

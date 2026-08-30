@@ -1,0 +1,98 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 
+    Dark Mode Theme Override
+    These brushes override the light theme equivalents when dark mode is active.
+    Uses DynamicResource in consuming XAML to enable runtime switching.
+    
+    Design: Deep navy/slate backgrounds with soft blue accents.
+    Based on the dashboard mockup with glassmorphism-style cards.
+    -->
+
+    <!-- Core Surface Colors - Glassmorphism style -->
+    <ImageBrush x:Key="ThemeBgBrush"
+                ImageSource="pack://application:,,,/baranggaysystem1;component/Resources/dashboard-dark-bg.png"
+                Stretch="UniformToFill"
+                AlignmentX="Center" AlignmentY="Center" />
+    <SolidColorBrush x:Key="ThemeBgFallbackBrush" Color="#0E1626" />
+    <SolidColorBrush x:Key="ThemeSurfaceBrush" Color="#1B2A45" Opacity="0.92" />
+    <SolidColorBrush x:Key="ThemeCardBrush" Color="#243350" Opacity="0.88" />
+    <SolidColorBrush x:Key="ThemeCardHoverBrush" Color="#2C3D5E" Opacity="0.55" />
+    <SolidColorBrush x:Key="ThemeBorderBrush" Color="#3A4B6B" Opacity="0.7" />
+    <SolidColorBrush x:Key="ThemeBorderSubtleBrush" Color="#2A3A5A" />
+
+    <!-- Text Colors -->
+    <SolidColorBrush x:Key="ThemeTextPrimaryBrush" Color="#F1F5F9" />
+    <SolidColorBrush x:Key="ThemeTextSecondaryBrush" Color="#94A3B8" />
+    <SolidColorBrush x:Key="ThemeTextMutedBrush" Color="#64748B" />
+    <SolidColorBrush x:Key="ThemeTextInverseBrush" Color="#0F172A" />
+
+    <!-- Sidebar -->
+    <SolidColorBrush x:Key="ThemeSidebarBgBrush" Color="#0B1120" />
+    <SolidColorBrush x:Key="ThemeSidebarItemHoverBrush" Color="#162035" />
+    <SolidColorBrush x:Key="ThemeSidebarItemActiveBrush" Color="#1E3A5F" />
+    <SolidColorBrush x:Key="ThemeSidebarTextBrush" Color="#94A3B8" />
+    <SolidColorBrush x:Key="ThemeSidebarTextActiveBrush" Color="#60A5FA" />
+
+    <!-- Top Bar -->
+    <SolidColorBrush x:Key="ThemeTopBarBgBrush" Color="#0F1623" />
+    <SolidColorBrush x:Key="ThemeTopBarBorderBrush" Color="#1C2A3F" />
+    <SolidColorBrush x:Key="ThemeTopBarTextBrush" Color="#E2E8F0" />
+
+    <!-- Accent -->
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="#60A5FA" />
+    <SolidColorBrush x:Key="ThemeAccentHoverBrush" Color="#3B82F6" />
+    <SolidColorBrush x:Key="ThemeAccentGreenBrush" Color="#34D399" />
+    <SolidColorBrush x:Key="ThemeAccentAmberBrush" Color="#FBBF24" />
+    <SolidColorBrush x:Key="ThemeAccentRedBrush" Color="#F87171" />
+
+    <!-- Input Controls -->
+    <SolidColorBrush x:Key="ThemeInputBgBrush" Color="#1A2332" Opacity="0.35" />
+    <SolidColorBrush x:Key="ThemeInputBorderBrush" Color="#3A4B6B" Opacity="0.45" />
+    <SolidColorBrush x:Key="ThemeInputTextBrush" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="ThemeInputPlaceholderBrush" Color="#64748B" />
+
+    <!-- DataGrid - translucent for glassmorphism -->
+    <SolidColorBrush x:Key="ThemeGridHeaderBgBrush" Color="#0B1220" Opacity="0.85" />
+    <SolidColorBrush x:Key="ThemeGridHeaderTextBrush" Color="#F1F5F9" />
+    <SolidColorBrush x:Key="ThemeGridRowBgBrush" Color="#1A2335" Opacity="0.55" />
+    <SolidColorBrush x:Key="ThemeGridRowAltBgBrush" Color="#1A2335" Opacity="0.30" />
+    <SolidColorBrush x:Key="ThemeGridRowHoverBrush" Color="#3B82F6" Opacity="0.18" />
+    <SolidColorBrush x:Key="ThemeGridRowSelectedBrush" Color="#1D4ED8" Opacity="0.88" />
+    <SolidColorBrush x:Key="ThemeGridRowSelectedTextBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ThemeGridBorderBrush" Color="#3A4B6B" Opacity="0.4" />
+    <SolidColorBrush x:Key="ThemeSelectionSurfaceBrush" Color="#273A63" />
+    <SolidColorBrush x:Key="ThemeSelectionBorderBrush" Color="#60A5FA" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#1D4ED8" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#334E7D" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#FFFFFF" />
+
+    <!-- Dashboard Background Image (dark mode glassmorphism) -->
+    <ImageBrush x:Key="ThemeDashboardBgBrush" 
+                ImageSource="pack://application:,,,/baranggaysystem1;component/Resources/dashboard-dark-bg.png" 
+                Stretch="UniformToFill" />
+    <BitmapImage x:Key="ThemeDashboardImageSource" 
+                 UriSource="pack://application:,,,/baranggaysystem1;component/Resources/dashboard-dark-bg.png" />
+
+    <!-- Reminder card palettes (theme-aware) -->
+    <SolidColorBrush x:Key="ReminderUrgentBgBrush" Color="#22EF4444" />
+    <SolidColorBrush x:Key="ReminderUrgentBorderBrush" Color="#88EF4444" />
+    <SolidColorBrush x:Key="ReminderUrgentAccentBrush" Color="#F87171" />
+    <SolidColorBrush x:Key="ReminderUrgentBtnBrush" Color="#EF4444" />
+
+    <SolidColorBrush x:Key="ReminderAttentionBgBrush" Color="#22F59E0B" />
+    <SolidColorBrush x:Key="ReminderAttentionBorderBrush" Color="#88F59E0B" />
+    <SolidColorBrush x:Key="ReminderAttentionAccentBrush" Color="#FBBF24" />
+    <SolidColorBrush x:Key="ReminderAttentionBtnBrush" Color="#F59E0B" />
+
+    <SolidColorBrush x:Key="ReminderPlanBgBrush" Color="#2210B981" />
+    <SolidColorBrush x:Key="ReminderPlanBorderBrush" Color="#8810B981" />
+    <SolidColorBrush x:Key="ReminderPlanAccentBrush" Color="#34D399" />
+    <SolidColorBrush x:Key="ReminderPlanBtnBrush" Color="#10B981" />
+
+    <!-- Status Bar -->
+    <SolidColorBrush x:Key="ThemeStatusBarBgBrush" Color="#0B1120" />
+    <SolidColorBrush x:Key="ThemeStatusBarTextBrush" Color="#64748B" />
+
+</ResourceDictionary>

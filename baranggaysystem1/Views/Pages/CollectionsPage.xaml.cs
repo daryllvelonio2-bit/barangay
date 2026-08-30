@@ -1,0 +1,1001 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Markup;
+using baranggaysystem1.helper;
+using baranggaysystem1.Models;
+using baranggaysystem1.Services;
+using baranggaysystem1.ViewModels;
+using baranggaysystem1.ViewModels.Navigation;
+using baranggaysystem1.Views.Controls;
+using baranggaysystem1.Views.Dialogs;
+using FontAwesome.Sharp;
+
+namespace baranggaysystem1.Views.Pages;
+
+public partial class CollectionsPage : UserControl, IRefreshable
+{
+	private enum FinanceSection
+	{
+		Expenses,
+		Inventory,
+		Assets,
+		Procurement
+	}
+
+	private readonly FinanceOperationsService _financeService = new FinanceOperationsService();
+
+	private DataTable? _expenseData;
+
+	private DataTable? _inventoryData;
+
+	private DataTable? _assetData;
+	private DataTable? _procurementData;
+
+	private FinanceSection _activeSection;
+
+	private bool _isUpdatingFilters;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public CollectionsPage()
+	{
+		InitializeComponent();
+		base.Loaded += async delegate
+		{
+			await LoadAsync();
+		};
+	}
+
+	public CollectionsPage(string route)
+		: this()
+	{
+	}
+
+	private async Task LoadAsync()
+	{
+		try
+		{
+			Task<DataTable> expenseTask = _financeService.GetExpenseLedgerAsync();
+			Task<DataTable> inventoryTask = _financeService.GetInventoryLedgerAsync();
+			Task<DataTable> assetTask = _financeService.GetAssetLedgerAsync();
+			Task<DataTable> procurementTask = _financeService.GetProcurementLedgerAsync();
+			await Task.WhenAll<DataTable>(expenseTask, inventoryTask, assetTask, procurementTask);
+			_expenseData = expenseTask.Result;
+			_inventoryData = inventoryTask.Result;
+			_assetData = assetTask.Result;
+			_procurementData = procurementTask.Result;
+			EnrichExpenseTable(_expenseData);
+			EnrichInventoryTable(_inventoryData);
+			EnrichAssetTable(_assetData);
+			expenseGrid.ItemsSource = _expenseData.DefaultView;
+			inventoryGrid.ItemsSource = _inventoryData.DefaultView;
+			assetGrid.ItemsSource = _assetData.DefaultView;
+			procurementGrid.ItemsSource = _procurementData.DefaultView;
+			UpdateSectionChrome();
+			UpdateMetrics();
+			PopulateFilterOptions();
+			ApplyFilters();
+		}
+		catch (Exception ex)
+		{
+			AppLogger.LogError("CollectionsPage load failed.", ex);
+			expenseGrid.ItemsSource = null;
+			inventoryGrid.ItemsSource = null;
+			assetGrid.ItemsSource = null;
+			procurementGrid.ItemsSource = null;
+			expenseEmptyLabel.Text = "Failed to load expense entries.";
+			inventoryEmptyLabel.Text = "Failed to load inventory records.";
+			assetEmptyLabel.Text = "Failed to load asset records.";
+			expenseEmptyState.Visibility = Visibility.Visible;
+			inventoryEmptyState.Visibility = Visibility.Visible;
+			assetEmptyState.Visibility = Visibility.Visible;
+			procurementEmptyState.Visibility = Visibility.Visible;
+			totalExpenseMetric.Text = "PHP 0.00";
+			pendingExpenseMetric.Text = "0";
+			inventoryValueMetric.Text = "PHP 0.00";
+			lowStockMetric.Text = "0";
+			activeAssetMetric.Text = "PHP 0.00";
+			recordCountLabel.Text = "Finance workspace is temporarily unavailable.";
+			footerCountLabel.Text = "Unable to load finance records.";
+			footerHintLabel.Text = "Refresh after checking database connectivity.";
+			contextActionBar.Visibility = Visibility.Collapsed;
+		}
+	}
+
+	private void UpdateMetrics()
+	{
+		decimal amount = SumVisibleOrAll(_expenseData, "amount");
+		int num = CountRows(_expenseData, (DataRow row) => string.Equals(Convert.ToString(row["status"]), "PENDING", StringComparison.OrdinalIgnoreCase));
+		decimal amount2 = SumVisibleOrAll(_inventoryData, "stock_value");
+		int num2 = CountRows(_inventoryData, (DataRow row) => string.Equals(Convert.ToString(row["stock_state"]), "LOW STOCK", StringComparison.OrdinalIgnoreCase) || string.Equals(Convert.ToString(row["stock_state"]), "OUT OF STOCK", StringComparison.OrdinalIgnoreCase));
+		decimal amount3 = SumRows(_assetData, (DataRow row) => string.Equals(Convert.ToString(row["lifecycle_status"]), "ACTIVE", StringComparison.OrdinalIgnoreCase), "acquisition_cost");
+		totalExpenseMetric.Text = FormatCurrency(amount);
+		pendingExpenseMetric.Text = num.ToString("N0", CultureInfo.InvariantCulture);
+		inventoryValueMetric.Text = FormatCurrency(amount2);
+		lowStockMetric.Text = num2.ToString("N0", CultureInfo.InvariantCulture);
+		activeAssetMetric.Text = FormatCurrency(amount3);
+	}
+
+	private void UpdateSectionChrome()
+	{
+		switch (_activeSection)
+		{
+		case FinanceSection.Inventory:
+			sectionBadgeText.Text = "Inventory Stock";
+			btnAddRecord.Content = "Add Inventory Item";
+			btnEditSelected.Content = "Edit Item";
+			footerHintLabel.Text = "Monitor stock levels and reorder points for barangay supplies.";
+			break;
+		case FinanceSection.Assets:
+			sectionBadgeText.Text = "Assets Registry";
+			btnAddRecord.Content = "Register Asset";
+			btnEditSelected.Content = "Edit Asset";
+			footerHintLabel.Text = "Keep the barangay asset registry current for inspection and audit readiness.";
+			break;
+		case FinanceSection.Procurement:
+			sectionBadgeText.Text = "Procurement Workflow";
+			btnAddRecord.Content = "New Procurement";
+			btnEditSelected.Content = "Edit Draft";
+			footerHintLabel.Text = "Move each request from draft to approval, order, and receipt.";
+			break;
+		default:
+			sectionBadgeText.Text = "Expense Ledger";
+			btnAddRecord.Content = "Record Expense";
+			btnEditSelected.Content = "Edit Expense";
+			footerHintLabel.Text = "Record outgoing disbursements, reimbursements, and operational expenses.";
+			break;
+		}
+	}
+
+	private void PopulateFilterOptions()
+	{
+		_isUpdatingFilters = true;
+		try
+		{
+			categoryFilter.Items.Clear();
+			categoryFilter.Items.Add("All Categories");
+			statusFilter.Items.Clear();
+			statusFilter.Items.Add(GetAllStatusLabel());
+			DataTable activeData = GetActiveData();
+			if (activeData != null)
+			{
+				foreach (string item in from value in (from row in activeData.AsEnumerable()
+						select Convert.ToString(row[GetCategoryColumn()]) ?? string.Empty into value
+						where !string.IsNullOrWhiteSpace(value)
+						select value).Distinct<string>(StringComparer.OrdinalIgnoreCase)
+					orderby value
+					select value)
+				{
+					categoryFilter.Items.Add(item);
+				}
+				foreach (string item2 in from value in (from row in activeData.AsEnumerable()
+						select Convert.ToString(row[GetStatusDisplayColumn()]) ?? string.Empty into value
+						where !string.IsNullOrWhiteSpace(value)
+						select value).Distinct<string>(StringComparer.OrdinalIgnoreCase)
+					orderby value
+					select value)
+				{
+					statusFilter.Items.Add(item2);
+				}
+			}
+			categoryFilter.SelectedIndex = 0;
+			statusFilter.SelectedIndex = 0;
+		}
+		finally
+		{
+			_isUpdatingFilters = false;
+		}
+	}
+
+	private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+	{
+		ApplyFilters();
+	}
+
+	private void Filter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (base.IsLoaded && !_isUpdatingFilters)
+		{
+			ApplyFilters();
+		}
+	}
+
+	private void FinanceTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (base.IsLoaded && e.Source == financeTabs)
+		{
+			_activeSection = financeTabs.SelectedIndex switch
+			{
+				1 => FinanceSection.Inventory, 
+				2 => FinanceSection.Assets, 
+				3 => FinanceSection.Procurement,
+				_ => FinanceSection.Expenses, 
+			};
+			UpdateSectionChrome();
+			PopulateFilterOptions();
+			ApplyFilters();
+		}
+	}
+
+	private void ApplyFilters()
+	{
+		DataTable activeData = GetActiveData();
+		if (activeData == null)
+		{
+			return;
+		}
+		List<string> list = new List<string>();
+		string value = searchBox.Text.Trim();
+		if (!string.IsNullOrWhiteSpace(value))
+		{
+			string escaped = EscapeForRowFilter(value);
+			list.Add("(" + string.Join(" OR ", from column in GetSearchColumns()
+				select $"Convert([{column}], 'System.String') LIKE '%{escaped}%'") + ")");
+		}
+		if (categoryFilter.SelectedItem is string text && !string.Equals(text, "All Categories", StringComparison.OrdinalIgnoreCase))
+		{
+			list.Add($"[{GetCategoryColumn()}] = '{EscapeForRowFilter(text)}'");
+		}
+		if (statusFilter.SelectedItem is string text2 && !string.Equals(text2, GetAllStatusLabel(), StringComparison.OrdinalIgnoreCase))
+		{
+			list.Add($"[{GetStatusDisplayColumn()}] = '{EscapeForRowFilter(text2)}'");
+		}
+		activeData.DefaultView.RowFilter = string.Join(" AND ", list);
+		UpdateEmptyStates();
+		DataGrid activeGrid = GetActiveGrid();
+		DataRowView selectedRow = activeGrid.SelectedItem as DataRowView;
+		if (selectedRow == null || !activeData.DefaultView.Cast<DataRowView>().Any((DataRowView view) => view.Row == selectedRow.Row))
+		{
+			activeGrid.UnselectAll();
+			UpdateSelectionState(null);
+		}
+		else
+		{
+			UpdateSelectionState(selectedRow);
+		}
+		int count = activeData.DefaultView.Count;
+		int count2 = activeData.Rows.Count;
+		TextBlock textBlock = recordCountLabel;
+		textBlock.Text = _activeSection switch
+		{
+			FinanceSection.Inventory => (count == count2) ? $"{count:N0} inventory item(s) loaded." : $"{count:N0} of {count2:N0} inventory item(s) match the current filters.", 
+			FinanceSection.Assets => (count == count2) ? $"{count:N0} asset record(s) loaded." : $"{count:N0} of {count2:N0} asset record(s) match the current filters.", 
+			FinanceSection.Procurement => (count == count2) ? $"{count:N0} procurement request(s) loaded." : $"{count:N0} of {count2:N0} procurement request(s) match the current filters.",
+			_ => (count == count2) ? $"{count:N0} expense entr{((count == 1) ? "y" : "ies")} loaded." : $"{count:N0} of {count2:N0} expense entr{((count2 == 1) ? "y" : "ies")} match the current filters.", 
+		};
+		textBlock = footerCountLabel;
+		textBlock.Text = _activeSection switch
+		{
+			FinanceSection.Inventory => $"Showing {count:N0} inventory item(s)", 
+			FinanceSection.Assets => $"Showing {count:N0} asset record(s)", 
+			FinanceSection.Procurement => $"Showing {count:N0} procurement request(s)",
+			_ => $"Showing {count:N0} expense entr{((count == 1) ? "y" : "ies")}", 
+		};
+	}
+
+	private void UpdateEmptyStates()
+	{
+		UpdateEmptyState(_expenseData, expenseEmptyState, expenseEmptyLabel, "No expense entries found.", "No expense entries match the current filters.");
+		UpdateEmptyState(_inventoryData, inventoryEmptyState, inventoryEmptyLabel, "No inventory items found.", "No inventory items match the current filters.");
+		UpdateEmptyState(_assetData, assetEmptyState, assetEmptyLabel, "No asset records found.", "No asset records match the current filters.");
+		UpdateEmptyState(_procurementData, procurementEmptyState, procurementEmptyLabel, "No procurement requests found.", "No procurement requests match the current filters.");
+	}
+
+	private static void UpdateEmptyState(DataTable? table, UIElement stateElement, TextBlock label, string noDataMessage, string noMatchMessage)
+	{
+		if (table == null)
+		{
+			stateElement.Visibility = Visibility.Visible;
+			label.Text = noDataMessage;
+		}
+		else if (table.Rows.Count == 0)
+		{
+			stateElement.Visibility = Visibility.Visible;
+			label.Text = noDataMessage;
+		}
+		else if (table.DefaultView.Count == 0)
+		{
+			stateElement.Visibility = Visibility.Visible;
+			label.Text = noMatchMessage;
+		}
+		else
+		{
+			stateElement.Visibility = Visibility.Collapsed;
+			label.Text = noDataMessage;
+		}
+	}
+
+	private async void BtnRefresh_Click(object sender, RoutedEventArgs e)
+	{
+		await LoadAsync();
+	}
+
+	private async void BtnAdd_Click(object sender, RoutedEventArgs e)
+	{
+		_ = 5;
+		try
+		{
+			switch (_activeSection)
+			{
+			case FinanceSection.Inventory:
+			{
+				InventoryItemWindow inventoryItemWindow = new InventoryItemWindow();
+				var adapter = new DialogContentAdapter(inventoryItemWindow);
+
+				var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Item", IconChar.Save,
+					async (s, args) =>
+					{
+						NavigationService.Instance.NavigateBackFromFullscreen("Collections", refreshOnReturn: true);
+					});
+
+				NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+				{
+					Title = "New Inventory Item",
+					Subtitle = "Add a new item to the inventory",
+					OriginRoute = "Collections",
+					Content = adapter,
+					Icon = IconChar.BoxOpen,
+					ToolbarItems = new List<UIElement> { saveButton },
+					ShowSideToolbar = false,
+					OnSaved = () => RefreshData()
+				});
+				break;
+			}
+			case FinanceSection.Assets:
+			{
+				AssetRecordWindow assetRecordWindow = new AssetRecordWindow();
+				var adapter = new DialogContentAdapter(assetRecordWindow);
+
+				var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Asset", IconChar.Save,
+					async (s, args) =>
+					{
+						NavigationService.Instance.NavigateBackFromFullscreen("Collections", refreshOnReturn: true);
+					});
+
+				NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+				{
+					Title = "New Asset Record",
+					Subtitle = "Register a new barangay asset",
+					OriginRoute = "Collections",
+					Content = adapter,
+					Icon = IconChar.Building,
+					ToolbarItems = new List<UIElement> { saveButton },
+					ShowSideToolbar = false,
+					OnSaved = () => RefreshData()
+				});
+				break;
+			}
+			case FinanceSection.Procurement:
+			{
+				FullscreenDialogNavigator.Open(
+					new ProcurementRequestWindow(),
+					"New Procurement Request",
+					"Record the need, expected cost, supplier, and required date.",
+					"Collections",
+					IconChar.ClipboardList,
+					"Save Draft",
+					RefreshData);
+				break;
+			}
+			default:
+			{
+				ExpenseEntryWindow expenseEntryWindow = new ExpenseEntryWindow();
+				var adapter = new DialogContentAdapter(expenseEntryWindow);
+
+				var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Expense", IconChar.Save,
+					async (s, args) =>
+					{
+						NavigationService.Instance.NavigateBackFromFullscreen("Collections", refreshOnReturn: true);
+					});
+
+				NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+				{
+					Title = "New Expense Entry",
+					Subtitle = "Record a new expense transaction",
+					OriginRoute = "Collections",
+					Content = adapter,
+					Icon = IconChar.Receipt,
+					ToolbarItems = new List<UIElement> { saveButton },
+					ShowSideToolbar = false,
+					OnSaved = () => RefreshData()
+				});
+				break;
+			}
+			}
+		}
+		catch (Exception ex)
+		{
+			AppLogger.LogError("Finance record creation failed.", ex);
+			DialogService.Instance.ShowError(ex.Message);
+		}
+	}
+
+	private async void BtnEditSelected_Click(object sender, RoutedEventArgs e)
+	{
+		if (!(GetActiveGrid().SelectedItem is DataRowView row))
+		{
+			DialogService.Instance.ShowWarning("Select a record to edit first.");
+			return;
+		}
+		try
+		{
+			switch (_activeSection)
+			{
+			case FinanceSection.Inventory:
+			{
+				InventoryItemWindow inventoryItemWindow = new InventoryItemWindow(ToInventoryRecord(row));
+				var adapter = new DialogContentAdapter(inventoryItemWindow);
+
+				var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Changes", IconChar.Save,
+					async (s, args) =>
+					{
+						NavigationService.Instance.NavigateBackFromFullscreen("Collections", refreshOnReturn: true);
+					});
+
+				NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+				{
+					Title = "Edit Inventory Item",
+					Subtitle = "Update item details",
+					OriginRoute = "Collections",
+					Content = adapter,
+					Icon = IconChar.Edit,
+					ToolbarItems = new List<UIElement> { saveButton },
+					ShowSideToolbar = false,
+					OnSaved = () => RefreshData()
+				});
+				break;
+			}
+			case FinanceSection.Assets:
+			{
+				AssetRecordWindow assetRecordWindow = new AssetRecordWindow(ToAssetRecord(row));
+				var adapter = new DialogContentAdapter(assetRecordWindow);
+
+				var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Changes", IconChar.Save,
+					async (s, args) =>
+					{
+						NavigationService.Instance.NavigateBackFromFullscreen("Collections", refreshOnReturn: true);
+					});
+
+				NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+				{
+					Title = "Edit Asset Record",
+					Subtitle = "Update asset details",
+					OriginRoute = "Collections",
+					Content = adapter,
+					Icon = IconChar.Edit,
+					ToolbarItems = new List<UIElement> { saveButton },
+					ShowSideToolbar = false,
+					OnSaved = () => RefreshData()
+				});
+				break;
+			}
+			case FinanceSection.Procurement:
+			{
+				string requestTitle = Convert.ToString(row["request_title"], CultureInfo.InvariantCulture) ?? "Procurement request";
+				FullscreenDialogNavigator.Open(
+					new ProcurementRequestWindow(ToProcurementRecord(row)),
+					"Edit Procurement Request",
+					requestTitle,
+					"Collections",
+					IconChar.Edit,
+					"Save Changes",
+					RefreshData);
+				break;
+			}
+			default:
+			{
+				ExpenseEntryWindow expenseEntryWindow = new ExpenseEntryWindow(ToExpenseRecord(row));
+				var adapter = new DialogContentAdapter(expenseEntryWindow);
+
+				var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Changes", IconChar.Save,
+					async (s, args) =>
+					{
+						NavigationService.Instance.NavigateBackFromFullscreen("Collections", refreshOnReturn: true);
+					});
+
+				NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+				{
+					Title = "Edit Expense Entry",
+					Subtitle = "Update expense details",
+					OriginRoute = "Collections",
+					Content = adapter,
+					Icon = IconChar.Edit,
+					ToolbarItems = new List<UIElement> { saveButton },
+					ShowSideToolbar = false,
+					OnSaved = () => RefreshData()
+				});
+				break;
+			}
+			}
+		}
+		catch (Exception ex)
+		{
+			AppLogger.LogError("Finance record update failed.", ex);
+			DialogService.Instance.ShowError(ex.Message);
+		}
+	}
+
+	private void BtnViewSelected_Click(object sender, RoutedEventArgs e)
+	{
+		if (!(GetActiveGrid().SelectedItem is DataRowView row))
+		{
+			DialogService.Instance.ShowWarning("Select a record first.");
+		}
+		else
+		{
+			DialogService.Instance.ShowInfo(BuildDetailMessage(row), "Finance Record Details");
+		}
+	}
+
+	private void BtnClearSelection_Click(object sender, RoutedEventArgs e)
+	{
+		GetActiveGrid().UnselectAll();
+		UpdateSelectionState(null);
+	}
+
+	private void ExpenseGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (_activeSection == FinanceSection.Expenses)
+		{
+			UpdateSelectionState(expenseGrid.SelectedItem as DataRowView);
+		}
+	}
+
+	private void InventoryGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (_activeSection == FinanceSection.Inventory)
+		{
+			UpdateSelectionState(inventoryGrid.SelectedItem as DataRowView);
+		}
+	}
+
+	private void AssetGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (_activeSection == FinanceSection.Assets)
+		{
+			UpdateSelectionState(assetGrid.SelectedItem as DataRowView);
+		}
+	}
+
+	private async void BtnAdvanceProcurement_Click(object sender, RoutedEventArgs e)
+	{
+		if (procurementGrid.SelectedItem is not DataRowView row) return;
+		string status = Convert.ToString(row["workflow_status"]) ?? "DRAFT";
+		string title = Convert.ToString(row["request_title"]) ?? "procurement request";
+		string next = status switch
+		{
+			"DRAFT" => "submit this request for approval",
+			"FOR APPROVAL" => "approve this request",
+			"APPROVED" => "mark this request as ordered",
+			"ORDERED" => "confirm that the goods were received",
+			_ => "advance this request"
+		};
+		if (!DialogService.Instance.Confirm($"Are you ready to {next}?\n\n{title}", "Procurement Workflow")) return;
+		try
+		{
+			await _financeService.AdvanceProcurementWorkflowAsync(Convert.ToInt32(row["procurement_id"]));
+			await LoadAsync();
+		}
+		catch (Exception ex)
+		{
+			AppLogger.LogError("Procurement workflow advance failed.", ex);
+			DialogService.Instance.ShowError(ex.Message);
+		}
+	}
+
+	private async void BtnCancelProcurement_Click(object sender, RoutedEventArgs e)
+	{
+		if (procurementGrid.SelectedItem is not DataRowView row) return;
+		var prompt = new ReasonPromptWindow(
+			"Cancel Procurement",
+			"Explain why this procurement request is being cancelled.",
+			"Cancel request")
+		{
+			Owner = Window.GetWindow(this)
+		};
+		if (prompt.ShowDialog() != true) return;
+		try
+		{
+			await _financeService.CancelProcurementWorkflowAsync(
+				Convert.ToInt32(row["procurement_id"]), prompt.Reason);
+			await LoadAsync();
+		}
+		catch (Exception ex)
+		{
+			AppLogger.LogError("Procurement cancellation failed.", ex);
+			DialogService.Instance.ShowError(ex.Message);
+		}
+	}
+
+	private void ProcurementGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (_activeSection == FinanceSection.Procurement)
+		{
+			UpdateSelectionState(procurementGrid.SelectedItem as DataRowView);
+		}
+	}
+
+	private void UpdateSelectionState(DataRowView? row)
+	{
+		if (row == null)
+		{
+			contextActionBar.Visibility = Visibility.Collapsed;
+			selectedRecordLabel.Text = "No record selected";
+			selectedRecordMetaLabel.Text = "Select a finance record to view details or edit it.";
+			return;
+		}
+		switch (_activeSection)
+		{
+		case FinanceSection.Inventory:
+			selectedRecordLabel.Text = Convert.ToString(row["item_name"]) ?? "Inventory Item";
+			selectedRecordMetaLabel.Text = $"{Convert.ToString(row["stock_state_display"]) ?? "Stock"} | {Convert.ToString(row["quantity_display"]) ?? "0"} | {Convert.ToString(row["stock_value_display"]) ?? "PHP 0.00"}";
+			break;
+		case FinanceSection.Assets:
+			selectedRecordLabel.Text = Convert.ToString(row["asset_name"]) ?? "Asset Record";
+			selectedRecordMetaLabel.Text = $"{Convert.ToString(row["condition_status_display"]) ?? "Condition"} | {Convert.ToString(row["lifecycle_status_display"]) ?? "Lifecycle"} | {Convert.ToString(row["acquisition_cost_display"]) ?? "PHP 0.00"}";
+			break;
+		case FinanceSection.Procurement:
+			string procurementStatus = Convert.ToString(row["workflow_status"]) ?? "DRAFT";
+			selectedRecordLabel.Text = Convert.ToString(row["request_title"]) ?? "Procurement Request";
+			selectedRecordMetaLabel.Text = $"{procurementStatus} | {FormatCurrency(ReadDecimal(row.Row, "total_amount"))}";
+			btnEditSelected.Visibility = procurementStatus is "RECEIVED" or "CANCELLED" ? Visibility.Collapsed : Visibility.Visible;
+			btnAdvanceProcurement.Visibility = procurementStatus is "RECEIVED" or "CANCELLED" ? Visibility.Collapsed : Visibility.Visible;
+			btnAdvanceProcurement.Content = procurementStatus switch
+			{
+				"DRAFT" => "Submit for Approval",
+				"FOR APPROVAL" => "Approve",
+				"APPROVED" => "Mark Ordered",
+				"ORDERED" => "Mark Received",
+				_ => "Advance"
+			};
+			btnCancelProcurement.Visibility = procurementStatus is "RECEIVED" or "CANCELLED" ? Visibility.Collapsed : Visibility.Visible;
+			break;
+		default:
+			selectedRecordLabel.Text = Convert.ToString(row["expense_title"]) ?? "Expense Entry";
+			selectedRecordMetaLabel.Text = $"{Convert.ToString(row["expense_category"]) ?? "Category"} | {Convert.ToString(row["amount_display"]) ?? "PHP 0.00"} | {Convert.ToString(row["status_display"]) ?? "Status"}";
+			break;
+		}
+		if (_activeSection != FinanceSection.Procurement)
+		{
+			btnEditSelected.Visibility = Visibility.Visible;
+			btnAdvanceProcurement.Visibility = Visibility.Collapsed;
+			btnCancelProcurement.Visibility = Visibility.Collapsed;
+		}
+		contextActionBar.Visibility = Visibility.Visible;
+	}
+
+	private string BuildDetailMessage(DataRowView row)
+	{
+		return _activeSection switch
+		{
+			FinanceSection.Inventory => $"Item: {row["item_name"]}\nCategory: {row["category"]}\nQuantity: {row["quantity_display"]}\nReorder Level: {row["reorder_display"]}\nUnit Cost: {row["unit_cost_display"]}\nStock Value: {row["stock_value_display"]}\nStock State: {row["stock_state_display"]}\nRecord Status: {row["item_status_display"]}\nLocation: {row["location_display"]}\nLast Restocked: {row["last_restocked_display"]}\n\n{row["notes_display"]}", 
+			FinanceSection.Assets => $"Asset: {row["asset_name"]}\nCategory: {row["asset_category"]}\nAsset Tag: {row["asset_tag_display"]}\nAcquisition Date: {row["acquisition_date_display"]}\nAcquisition Cost: {row["acquisition_cost_display"]}\nCondition: {row["condition_status_display"]}\nLifecycle: {row["lifecycle_status_display"]}\nLocation: {row["assigned_location_display"]}\nCustodian: {row["custodian_name_display"]}\n\n{row["notes_display"]}", 
+			FinanceSection.Procurement => $"Request: {row["request_title"]}\nType: {row["request_type"]}\nCategory: {row["procurement_category"]}\nStatus: {row["workflow_status"]}\nAmount: {FormatCurrency(ReadDecimal(row.Row, "total_amount"))}\nNeeded By: {row["needed_by_display"]}\nVendor: {row["vendor_name"]}\nPurchase Order: {row["purchase_order_no"]}\n\n{row["item_summary"]}",
+			_ => $"Expense: {row["expense_title"]}\nDate: {row["expense_date_display"]}\nCategory: {row["expense_category"]}\nPayee: {row["payee_display"]}\nAmount: {row["amount_display"]}\nPayment Method: {row["payment_method_display"]}\nStatus: {row["status_display"]}\nReference: {row["reference_display"]}\n\n{row["notes_display"]}", 
+		};
+	}
+
+	private DataTable? GetActiveData()
+	{
+		return _activeSection switch
+		{
+			FinanceSection.Inventory => _inventoryData, 
+			FinanceSection.Assets => _assetData, 
+			FinanceSection.Procurement => _procurementData,
+			_ => _expenseData, 
+		};
+	}
+
+	private DataGrid GetActiveGrid()
+	{
+		return _activeSection switch
+		{
+			FinanceSection.Inventory => inventoryGrid, 
+			FinanceSection.Assets => assetGrid, 
+			FinanceSection.Procurement => procurementGrid,
+			_ => expenseGrid, 
+		};
+	}
+
+	private string[] GetSearchColumns()
+	{
+		return _activeSection switch
+		{
+			FinanceSection.Inventory => new string[11]
+			{
+				"item_name", "category", "quantity_display", "reorder_display", "unit_cost_display", "stock_value_display", "stock_state_display", "location_display", "item_status_display", "last_restocked_display",
+				"notes_display"
+			}, 
+			FinanceSection.Assets => new string[10] { "asset_name", "asset_category", "asset_tag_display", "acquisition_date_display", "acquisition_cost_display", "condition_status_display", "lifecycle_status_display", "assigned_location_display", "custodian_name_display", "notes_display" }, 
+			FinanceSection.Procurement => new string[9] { "request_title", "request_type", "procurement_category", "workflow_status", "vendor_name", "requested_by_name", "purchase_order_no", "item_summary", "notes" },
+			_ => new string[9] { "expense_date_display", "expense_title", "expense_category", "payee_display", "amount_display", "payment_method_display", "status_display", "reference_display", "notes_display" }, 
+		};
+	}
+
+	private string GetCategoryColumn()
+	{
+		return _activeSection switch
+		{
+			FinanceSection.Inventory => "category", 
+			FinanceSection.Assets => "asset_category", 
+			FinanceSection.Procurement => "procurement_category",
+			_ => "expense_category", 
+		};
+	}
+
+	private string GetStatusDisplayColumn()
+	{
+		return _activeSection switch
+		{
+			FinanceSection.Inventory => "stock_state_display", 
+			FinanceSection.Assets => "lifecycle_status_display", 
+			FinanceSection.Procurement => "workflow_status",
+			_ => "status_display", 
+		};
+	}
+
+	private string GetAllStatusLabel()
+	{
+		return _activeSection switch
+		{
+			FinanceSection.Inventory => "All Stock States", 
+			FinanceSection.Assets => "All Lifecycle Status", 
+			FinanceSection.Procurement => "All Workflow Status",
+			_ => "All Expense Status", 
+		};
+	}
+
+	private static void EnrichExpenseTable(DataTable table)
+	{
+		EnsureStringColumn(table, "amount_display");
+		EnsureStringColumn(table, "payment_method_display");
+		EnsureStringColumn(table, "status_display");
+		EnsureStringColumn(table, "payee_display");
+		EnsureStringColumn(table, "reference_display");
+		EnsureStringColumn(table, "notes_display");
+		foreach (DataRow row in table.Rows)
+		{
+			row["amount_display"] = FormatCurrency(ReadDecimal(row, "amount"));
+			row["payment_method_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["payment_method"])) ? "Cash" : Convert.ToString(row["payment_method"]));
+			row["status_display"] = ToTitleCase(Convert.ToString(row["status"]) ?? "POSTED");
+			row["payee_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["payee_name"])) ? "No payee listed" : Convert.ToString(row["payee_name"]));
+			row["reference_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["reference_no"])) ? "No reference" : Convert.ToString(row["reference_no"]));
+			row["notes_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["notes"])) ? "No notes recorded." : Convert.ToString(row["notes"]));
+		}
+	}
+
+	private static void EnrichInventoryTable(DataTable table)
+	{
+		EnsureStringColumn(table, "quantity_display");
+		EnsureStringColumn(table, "reorder_display");
+		EnsureStringColumn(table, "unit_cost_display");
+		EnsureStringColumn(table, "stock_value_display");
+		EnsureStringColumn(table, "stock_state_display");
+		EnsureStringColumn(table, "location_display");
+		EnsureStringColumn(table, "item_status_display");
+		EnsureStringColumn(table, "notes_display");
+		foreach (DataRow row in table.Rows)
+		{
+			string value = Convert.ToString(row["unit"]) ?? "pcs";
+			row["quantity_display"] = $"{ReadDecimal(row, "quantity_on_hand"):N2} {value}";
+			row["reorder_display"] = $"{ReadDecimal(row, "reorder_level"):N2} {value}";
+			row["unit_cost_display"] = FormatCurrency(ReadDecimal(row, "unit_cost"));
+			row["stock_value_display"] = FormatCurrency(ReadDecimal(row, "stock_value"));
+			row["stock_state_display"] = ToTitleCase(Convert.ToString(row["stock_state"]) ?? "IN STOCK");
+			row["location_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["location"])) ? "No location assigned" : Convert.ToString(row["location"]));
+			row["item_status_display"] = ToTitleCase(Convert.ToString(row["item_status"]) ?? "ACTIVE");
+			row["notes_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["notes"])) ? "No notes recorded." : Convert.ToString(row["notes"]));
+		}
+	}
+
+	private static void EnrichAssetTable(DataTable table)
+	{
+		EnsureStringColumn(table, "asset_tag_display");
+		EnsureStringColumn(table, "acquisition_cost_display");
+		EnsureStringColumn(table, "condition_status_display");
+		EnsureStringColumn(table, "lifecycle_status_display");
+		EnsureStringColumn(table, "assigned_location_display");
+		EnsureStringColumn(table, "custodian_name_display");
+		EnsureStringColumn(table, "notes_display");
+		foreach (DataRow row in table.Rows)
+		{
+			row["asset_tag_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["asset_tag"])) ? "No tag" : Convert.ToString(row["asset_tag"]));
+			row["acquisition_cost_display"] = FormatCurrency(ReadDecimal(row, "acquisition_cost"));
+			row["condition_status_display"] = ToTitleCase(Convert.ToString(row["condition_status"]) ?? "GOOD");
+			row["lifecycle_status_display"] = ToTitleCase(Convert.ToString(row["lifecycle_status"]) ?? "ACTIVE");
+			row["assigned_location_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["assigned_location"])) ? "No location assigned" : Convert.ToString(row["assigned_location"]));
+			row["custodian_name_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["custodian_name"])) ? "No custodian listed" : Convert.ToString(row["custodian_name"]));
+			row["notes_display"] = (string.IsNullOrWhiteSpace(Convert.ToString(row["notes"])) ? "No notes recorded." : Convert.ToString(row["notes"]));
+		}
+	}
+
+	private static void EnsureStringColumn(DataTable table, string columnName)
+	{
+		if (!table.Columns.Contains(columnName))
+		{
+			table.Columns.Add(columnName, typeof(string));
+		}
+	}
+
+	private static decimal ReadDecimal(DataRow row, string columnName)
+	{
+		if (row[columnName] != DBNull.Value)
+		{
+			return Convert.ToDecimal(row[columnName], CultureInfo.InvariantCulture);
+		}
+		return 0m;
+	}
+
+	private static decimal SumVisibleOrAll(DataTable? table, string columnName)
+	{
+		string columnName2 = columnName;
+		return table?.AsEnumerable().Sum((DataRow row) => ReadDecimal(row, columnName2)) ?? 0m;
+	}
+
+	private static decimal SumRows(DataTable? table, Func<DataRow, bool> predicate, string columnName)
+	{
+		string columnName2 = columnName;
+		return table?.AsEnumerable().Where(predicate).Sum((DataRow row) => ReadDecimal(row, columnName2)) ?? 0m;
+	}
+
+	private static int CountRows(DataTable? table, Func<DataRow, bool> predicate)
+	{
+		return table?.AsEnumerable().Count(predicate) ?? 0;
+	}
+
+	private static string FormatCurrency(decimal amount)
+	{
+		return $"PHP {amount:N2}";
+	}
+
+	private static string ToTitleCase(string value)
+	{
+		string text = value ?? string.Empty;
+		text = text.Replace('_', ' ');
+		return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text.ToLowerInvariant());
+	}
+
+	private static string EscapeForRowFilter(string value)
+	{
+		return value.Replace("'", "''").Replace("[", "[[]").Replace("%", "[%]")
+			.Replace("*", "[*]");
+	}
+
+	private static DateTime? ReadNullableDate(object value)
+	{
+		if (value == DBNull.Value)
+		{
+			return null;
+		}
+		if (value is DateTime)
+		{
+			return (DateTime)value;
+		}
+		if (DateTime.TryParse(Convert.ToString(value), out var result))
+		{
+			return result;
+		}
+		return null;
+	}
+
+	private static ExpenseEntryRecord ToExpenseRecord(DataRowView row)
+	{
+		return new ExpenseEntryRecord
+		{
+			ExpenseId = Convert.ToInt32(row["expense_id"], CultureInfo.InvariantCulture),
+			ExpenseDate = (ReadNullableDate(row["expense_date"]) ?? DateTime.Today),
+			ExpenseCategory = (Convert.ToString(row["expense_category"]) ?? string.Empty),
+			ExpenseTitle = (Convert.ToString(row["expense_title"]) ?? string.Empty),
+			PayeeName = (Convert.ToString(row["payee_name"]) ?? string.Empty),
+			Amount = ((row["amount"] == DBNull.Value) ? 0m : Convert.ToDecimal(row["amount"], CultureInfo.InvariantCulture)),
+			PaymentMethod = (Convert.ToString(row["payment_method"]) ?? "Cash"),
+			Status = (Convert.ToString(row["status"]) ?? "POSTED"),
+			ReferenceNo = (Convert.ToString(row["reference_no"]) ?? string.Empty),
+			Notes = (Convert.ToString(row["notes"]) ?? string.Empty)
+		};
+	}
+
+	private static InventoryItemRecord ToInventoryRecord(DataRowView row)
+	{
+		return new InventoryItemRecord
+		{
+			ItemId = Convert.ToInt32(row["item_id"], CultureInfo.InvariantCulture),
+			ItemName = (Convert.ToString(row["item_name"]) ?? string.Empty),
+			Category = (Convert.ToString(row["category"]) ?? string.Empty),
+			Unit = (Convert.ToString(row["unit"]) ?? "pcs"),
+			QuantityOnHand = ((row["quantity_on_hand"] == DBNull.Value) ? 0m : Convert.ToDecimal(row["quantity_on_hand"], CultureInfo.InvariantCulture)),
+			ReorderLevel = ((row["reorder_level"] == DBNull.Value) ? 0m : Convert.ToDecimal(row["reorder_level"], CultureInfo.InvariantCulture)),
+			UnitCost = ((row["unit_cost"] == DBNull.Value) ? 0m : Convert.ToDecimal(row["unit_cost"], CultureInfo.InvariantCulture)),
+			Location = (Convert.ToString(row["location"]) ?? string.Empty),
+			ItemStatus = (Convert.ToString(row["item_status"]) ?? "ACTIVE"),
+			LastRestockedAt = ReadNullableDate(row["last_restocked_at"]),
+			Notes = (Convert.ToString(row["notes"]) ?? string.Empty)
+		};
+	}
+
+	private static AssetRecord ToAssetRecord(DataRowView row)
+	{
+		return new AssetRecord
+		{
+			AssetId = Convert.ToInt32(row["asset_id"], CultureInfo.InvariantCulture),
+			AssetName = (Convert.ToString(row["asset_name"]) ?? string.Empty),
+			AssetCategory = (Convert.ToString(row["asset_category"]) ?? string.Empty),
+			AssetTag = (Convert.ToString(row["asset_tag"]) ?? string.Empty),
+			AcquisitionDate = ReadNullableDate(row["acquisition_date"]),
+			AcquisitionCost = ((row["acquisition_cost"] == DBNull.Value) ? 0m : Convert.ToDecimal(row["acquisition_cost"], CultureInfo.InvariantCulture)),
+			AssignedLocation = (Convert.ToString(row["assigned_location"]) ?? string.Empty),
+			CustodianName = (Convert.ToString(row["custodian_name"]) ?? string.Empty),
+			ConditionStatus = (Convert.ToString(row["condition_status"]) ?? "GOOD"),
+			LifecycleStatus = (Convert.ToString(row["lifecycle_status"]) ?? "ACTIVE"),
+			Notes = (Convert.ToString(row["notes"]) ?? string.Empty)
+		};
+	}
+
+	private static ProcurementRequestRecord ToProcurementRecord(DataRowView row)
+	{
+		return new ProcurementRequestRecord
+		{
+			ProcurementId = Convert.ToInt32(row["procurement_id"], CultureInfo.InvariantCulture),
+			RequestType = Convert.ToString(row["request_type"]) ?? "PROCUREMENT",
+			RequestDate = ReadNullableDate(row["request_date"]) ?? DateTime.Today,
+			NeededByDate = ReadNullableDate(row["needed_by_date"]),
+			RequestTitle = Convert.ToString(row["request_title"]) ?? string.Empty,
+			ProcurementCategory = Convert.ToString(row["procurement_category"]) ?? string.Empty,
+			VendorName = Convert.ToString(row["vendor_name"]) ?? string.Empty,
+			RequestedByName = Convert.ToString(row["requested_by_name"]) ?? string.Empty,
+			TotalAmount = row["total_amount"] == DBNull.Value ? 0m : Convert.ToDecimal(row["total_amount"], CultureInfo.InvariantCulture),
+			WorkflowStatus = Convert.ToString(row["workflow_status"]) ?? "DRAFT",
+			PurchaseOrderNo = Convert.ToString(row["purchase_order_no"]) ?? string.Empty,
+			ApprovedByName = Convert.ToString(row["approved_by_name"]) ?? string.Empty,
+			ApprovedAt = ReadNullableDate(row["approved_at"]),
+			ItemSummary = Convert.ToString(row["item_summary"]) ?? string.Empty,
+			ApprovalNotes = Convert.ToString(row["approval_notes"]) ?? string.Empty,
+			Notes = Convert.ToString(row["notes"]) ?? string.Empty
+		};
+	}
+
+	#region IRefreshable Implementation
+
+	/// <summary>
+	/// Refreshes the page data after returning from a fullscreen view.
+	/// </summary>
+	public void RefreshData()
+	{
+		_ = LoadAsync();
+	}
+
+	#endregion
+}

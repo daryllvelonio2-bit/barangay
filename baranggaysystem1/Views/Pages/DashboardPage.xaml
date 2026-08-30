@@ -1,0 +1,753 @@
+<UserControl x:Class="baranggaysystem1.Views.Pages.DashboardPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:fa="clr-namespace:FontAwesome.Sharp;assembly=FontAwesome.Sharp" Background="Transparent" xmlns:pages="clr-namespace:baranggaysystem1.Views.Pages;assembly=baranggaysystem1">
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <Style x:Key="ClassicDashboardButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="{DynamicResource ThemeCardBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+              <Border x:Name="buttonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Setter TargetName="buttonBorder" Property="Background" Value="{DynamicResource ThemeCardHoverBrush}" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Setter TargetName="buttonBorder" Property="Opacity" Value="0.75" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Grid Name="pageScrollViewer" Background="Transparent">
+    <Grid>
+      <Grid Name="reminderCenterSection" Background="{DynamicResource ThemeSurfaceBrush}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="24,18,24,12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <fa:IconBlock Icon="Bell" FontSize="16" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="0,1,9,0" />
+              <TextBlock Text="Dashboard Notifications" FontFamily="{StaticResource CenturyGothic}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+            </StackPanel>
+            <TextBlock Name="reminderStatusNote" Text="Loading notifications..." FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" Margin="25,5,0,0" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Name="reminderTimestampText" Text="" FontSize="10.5" Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0" />
+            <Button Style="{StaticResource ClassicDashboardButtonStyle}" Click="BtnRefreshReminderCenter_Click">
+              <StackPanel Orientation="Horizontal">
+                <fa:IconBlock Icon="SyncAlt" FontSize="10" Margin="0,0,6,0" VerticalAlignment="Center" />
+                <TextBlock Text="Refresh" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="0,1,0,1" Background="{DynamicResource ThemeCardHoverBrush}" Padding="24,9">
+          <Grid>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="Critical:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+              <TextBlock Name="urgentReminderCountText" Text="0" FontSize="11" FontWeight="Bold" Foreground="#DC2626" Margin="5,0,18,0" />
+              <TextBlock Text="Needs attention:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+              <TextBlock Name="importantReminderCountText" Text="0" FontSize="11" FontWeight="Bold" Foreground="#B45309" Margin="5,0,18,0" />
+              <TextBlock Text="Upcoming:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+              <TextBlock Name="planReminderCountText" Text="0" FontSize="11" FontWeight="Bold" Foreground="#047857" Margin="5,0,0,0" />
+            </StackPanel>
+            <TextBlock Name="reminderFooterTopText" Text="Notification register" HorizontalAlignment="Right" FontSize="10.5" Foreground="{DynamicResource ThemeTextMutedBrush}" />
+          </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="24,14,24,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="1" />
+            <ColumnDefinition Width="2*" />
+          </Grid.ColumnDefinitions>
+
+          <Grid Grid.Column="0" Margin="0,0,20,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Margin="0,0,0,8">
+              <TextBlock Name="urgentSectionTitle" Text="Items Requiring Action" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+              <TextBlock Name="urgentSectionTotal" Text="0 total" HorizontalAlignment="Right" FontSize="10.5" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+            </Grid>
+            <Grid Grid.Row="1" Background="{DynamicResource ThemeCardHoverBrush}" Height="28">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="105" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="145" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="PRIORITY" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="10,0" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="NOTIFICATION / DETAILS" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="8,0" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="2" Text="ACTION" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="8,0" VerticalAlignment="Center" />
+            </Grid>
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Name="importantReminderCards" />
+            </ScrollViewer>
+          </Grid>
+
+          <Border Grid.Column="1" Background="{DynamicResource ThemeBorderBrush}" />
+
+          <Grid Grid.Column="2" Margin="20,0,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Upcoming Work" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="0,0,0,8" />
+            <Grid Grid.Row="1" Background="{DynamicResource ThemeCardHoverBrush}" Height="28">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="92" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="120" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="TYPE" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="10,0" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="SCHEDULE / DETAILS" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="8,0" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="2" Text="ACTION" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="8,0" VerticalAlignment="Center" />
+            </Grid>
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Name="planReminderCards" />
+            </ScrollViewer>
+          </Grid>
+        </Grid>
+
+        <Border Grid.Row="3" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="0,1,0,0" Margin="24,0" Padding="0,10">
+          <DockPanel>
+            <TextBlock Text="Open an item to continue its workflow. Records remain unchanged until you complete an action." FontSize="10.5" Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center" />
+            <Button DockPanel.Dock="Right" Style="{StaticResource ClassicDashboardButtonStyle}" Click="BtnOpenDashboardOverview_Click" HorizontalAlignment="Right">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Dashboard Overview" />
+                <fa:IconBlock Icon="ArrowRight" FontSize="9" Margin="7,0,0,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </DockPanel>
+        </Border>
+      </Grid>
+      <Grid Name="dashboardOverviewSection" Visibility="Collapsed">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Margin="14,10,14,0" CornerRadius="20" ClipToBounds="True">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+              <GradientStop Color="#990F1A30" Offset="0" />
+              <GradientStop Color="#991A2845" Offset="0.5" />
+              <GradientStop Color="#990F1A30" Offset="1" />
+            </LinearGradientBrush>
+          </Border.Background>
+          <Border.Effect>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="4" Opacity="0.30" Color="#000000" Direction="270" />
+          </Border.Effect>
+          <Grid>
+            <!-- Glassy diagonal sheen overlay -->
+            <Border CornerRadius="20" IsHitTestVisible="False">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                  <GradientStop Color="#22FFFFFF" Offset="0" />
+                  <GradientStop Color="#00FFFFFF" Offset="0.45" />
+                  <GradientStop Color="#15000000" Offset="1" />
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+            <fa:IconBlock Icon="LayerGroup" Opacity="0.04" FontSize="180" Foreground="#FFFFFFFF" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-60,-60" />
+            <Grid Margin="24,14">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <!-- Profile avatar (photo if available, gradient initials fallback) -->
+              <Grid Grid.Column="0" Width="80" Height="80" Margin="0,0,16,0" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="WelcomeAvatar_Click" ToolTip="Click to update profile">
+                <!-- Glow ring -->
+                <Ellipse Width="80" Height="80" Stroke="#3B82F6" StrokeThickness="2.5" Opacity="0.45" />
+                <!-- Initials fallback (solid gradient with first letter) -->
+                <Border Name="welcomeAvatarFallback" Width="72" Height="72" CornerRadius="36">
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                      <GradientStop Color="#60A5FA" Offset="0" />
+                      <GradientStop Color="#1D4ED8" Offset="1" />
+                    </LinearGradientBrush>
+                  </Border.Background>
+                  <TextBlock Name="welcomeAvatarInitial" Text="A" Foreground="#FFFFFFFF" FontFamily="{StaticResource CenturyGothic}" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <!-- Photo image overlay (clipped to circle), hidden until a photo is loaded -->
+                <Border Width="72" Height="72" CornerRadius="36" ClipToBounds="True">
+                  <Image Name="welcomeAvatarImage" Stretch="UniformToFill" Visibility="Collapsed">
+                    <Image.Clip>
+                      <EllipseGeometry Center="36,36" RadiusX="36" RadiusY="36" />
+                    </Image.Clip>
+                  </Image>
+                </Border>
+                <!-- Online status dot in the bottom-right of the avatar -->
+                <Border Width="16" Height="16" CornerRadius="8" Background="#22C55E"
+                        BorderBrush="#0F172A" BorderThickness="2.5"
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        Margin="0,0,4,4">
+                  <Border.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#22C55E" Opacity="0.7" />
+                  </Border.Effect>
+                </Border>
+                <!-- Camera overlay hint -->
+                <Border Width="24" Height="24" CornerRadius="12" Background="#0F172A"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Margin="0,2,2,0" Opacity="0.7">
+                  <fa:IconBlock Icon="Camera" FontSize="10" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+              <!-- Greeting text -->
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <Border Background="#3B82F6" HorizontalAlignment="Left" Padding="10,2" CornerRadius="5" Margin="0,0,0,8">
+                  <TextBlock Name="welcomeGreeting" Text="GOOD MORNING, ADMINISTRATOR" Foreground="#FFFFFFFF" FontSize="9" FontWeight="Black" />
+                </Border>
+                <TextBlock Text="Barangay Dashboard" Foreground="#FFFFFFFF" FontSize="20" FontWeight="Bold" FontFamily="{StaticResource CenturyGothic}" />
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0" Visibility="Collapsed">
+                  <fa:IconBlock Icon="CalendarAlt" Foreground="#94A3B8" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  <TextBlock Name="welcomeDate" Text="Monday, April 14, 2026" Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" />
+                </StackPanel>
+              </StackPanel>
+              <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <Button Style="{StaticResource SecondaryButtonStyle}" Height="36" Padding="14,0" Margin="0,0,0,10" Click="BtnOpenReminderCenter_Click">
+                  <StackPanel Orientation="Horizontal">
+                    <fa:IconBlock Icon="Bell" FontSize="11" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <TextBlock Text="Reminder Center" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+                <Border Background="#1E293B" BorderBrush="#475569" BorderThickness="1" Padding="16,10" CornerRadius="12">
+                  <StackPanel Orientation="Horizontal">
+                    <Border Width="10" Height="10" CornerRadius="5" Background="#22C55E" Margin="0,0,10,0" VerticalAlignment="Center">
+                      <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="0" Opacity="0.5" Color="#22C55E" />
+                      </Border.Effect>
+                    </Border>
+                    <TextBlock Text="ONLINE" Foreground="#FFFFFFFF" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </Border>
+        <Grid Name="kpiRow" Grid.Row="1" Margin="14,12,14,0" Height="78">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Border Grid.Column="0" Margin="0,0,8,0" Style="{StaticResource KpiCardStyle}">
+            <Grid>
+              <Border Background="{StaticResource KpiGlassOverlayBrush}" IsHitTestVisible="False" />
+              <Grid Margin="12,10">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" VerticalAlignment="Center" Margin="0,0,10,0">
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                      <GradientStop Color="#10B981" Offset="0" />
+                      <GradientStop Color="#34D399" Offset="1" />
+                    </LinearGradientBrush>
+                  </Border.Background>
+                  <fa:IconBlock Icon="Users" Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Residents" Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11" VerticalAlignment="Center" />
+                    <Border Background="#1A22C55E" CornerRadius="8" Padding="5,1" Margin="6,0,0,0" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal">
+                        <fa:IconBlock Icon="ArrowTrendUp" Foreground="#34D399" FontSize="8" VerticalAlignment="Center" Margin="0,0,3,0" />
+                        <TextBlock Name="statResidentsTrend" Text="100" Foreground="#34D399" FontSize="9" FontWeight="Bold" />
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                  <TextBlock Name="statResidentsValue" Text="0" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource CenturyGothic}" FontSize="22" FontWeight="Bold" Margin="0,1,0,0" />
+                </StackPanel>
+                <Grid Grid.Column="2" Width="42" Height="42" VerticalAlignment="Center">
+                  <Ellipse Width="42" Height="42" Stroke="#22FFFFFF" StrokeThickness="3" />
+                  <Path Name="ringResidentsArc" Stroke="#34D399" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                  <TextBlock Name="ringResidentsPct" Text="0%" Foreground="#34D399" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Border>
+          <Border Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource KpiCardStyle}">
+            <Grid>
+              <Border Background="{StaticResource KpiGlassOverlayBrush}" IsHitTestVisible="False" />
+              <Grid Margin="12,10">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" VerticalAlignment="Center" Margin="0,0,10,0">
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                      <GradientStop Color="#3B82F6" Offset="0" />
+                      <GradientStop Color="#60A5FA" Offset="1" />
+                    </LinearGradientBrush>
+                  </Border.Background>
+                  <fa:IconBlock Icon="ShieldAlt" Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Active" Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11" VerticalAlignment="Center" />
+                    <Border Background="#1A22C55E" CornerRadius="8" Padding="5,1" Margin="6,0,0,0" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal">
+                        <fa:IconBlock Icon="ArrowTrendUp" Foreground="#34D399" FontSize="8" VerticalAlignment="Center" Margin="0,0,3,0" />
+                        <TextBlock Name="statActiveTrend" Text="100" Foreground="#34D399" FontSize="9" FontWeight="Bold" />
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                  <TextBlock Name="statActiveValue" Text="0" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource CenturyGothic}" FontSize="22" FontWeight="Bold" Margin="0,1,0,0" />
+                </StackPanel>
+                <Grid Grid.Column="2" Width="42" Height="42" VerticalAlignment="Center">
+                  <Ellipse Width="42" Height="42" Stroke="#22FFFFFF" StrokeThickness="3" />
+                  <Path Name="ringActiveArc" Stroke="#60A5FA" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                  <TextBlock Name="ringActivePct" Text="0%" Foreground="#60A5FA" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Border>
+          <Border Grid.Column="2" Margin="0,0,8,0" Style="{StaticResource KpiCardStyle}">
+            <Grid>
+              <Border Background="{StaticResource KpiGlassOverlayBrush}" IsHitTestVisible="False" />
+              <Grid Margin="12,10">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" VerticalAlignment="Center" Margin="0,0,10,0">
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                      <GradientStop Color="#F59E0B" Offset="0" />
+                      <GradientStop Color="#FBBF24" Offset="1" />
+                    </LinearGradientBrush>
+                  </Border.Background>
+                  <fa:IconBlock Icon="Home" Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <TextBlock Text="Households" Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11" />
+                  <TextBlock Name="statHouseholdsValue" Text="0" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource CenturyGothic}" FontSize="22" FontWeight="Bold" Margin="0,1,0,0" />
+                </StackPanel>
+                <Grid Grid.Column="2" Width="42" Height="42" VerticalAlignment="Center">
+                  <Ellipse Width="42" Height="42" Stroke="#22FFFFFF" StrokeThickness="3" />
+                  <Path Name="ringHouseholdsArc" Stroke="#FBBF24" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                  <TextBlock Name="ringHouseholdsPct" Text="0%" Foreground="#FBBF24" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Border>
+          <Border Grid.Column="3" Margin="0,0,8,0" Style="{StaticResource KpiCardStyle}">
+            <Grid>
+              <Border Background="{StaticResource KpiGlassOverlayBrush}" IsHitTestVisible="False" />
+              <Grid Margin="12,10">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" VerticalAlignment="Center" Margin="0,0,10,0">
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                      <GradientStop Color="#8B5CF6" Offset="0" />
+                      <GradientStop Color="#A78BFA" Offset="1" />
+                    </LinearGradientBrush>
+                  </Border.Background>
+                  <fa:IconBlock Icon="FileContract" Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <TextBlock Text="Pending Docs" Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11" />
+                  <TextBlock Name="statCertsValue" Text="0" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource CenturyGothic}" FontSize="22" FontWeight="Bold" Margin="0,1,0,0" />
+                </StackPanel>
+                <Grid Grid.Column="2" Width="42" Height="42" VerticalAlignment="Center">
+                  <Ellipse Width="42" Height="42" Stroke="#22FFFFFF" StrokeThickness="3" />
+                  <Path Name="ringCertsArc" Stroke="#A78BFA" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                  <TextBlock Name="ringCertsPct" Text="0%" Foreground="#A78BFA" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Border>
+          <Border Name="kpiBlotter" Grid.Column="4" Margin="0" Style="{StaticResource KpiCardStyle}">
+            <Grid>
+              <Border Background="{StaticResource KpiGlassOverlayBrush}" IsHitTestVisible="False" />
+              <Grid Margin="12,10">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" VerticalAlignment="Center" Margin="0,0,10,0">
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                      <GradientStop Color="#EF4444" Offset="0" />
+                      <GradientStop Color="#F87171" Offset="1" />
+                    </LinearGradientBrush>
+                  </Border.Background>
+                  <fa:IconBlock Icon="Gavel" Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <TextBlock Text="Blotters" Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11" />
+                  <TextBlock Name="statBlotterValue" Text="0" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource CenturyGothic}" FontSize="22" FontWeight="Bold" Margin="0,1,0,0" />
+                </StackPanel>
+                <Grid Grid.Column="2" Width="42" Height="42" VerticalAlignment="Center">
+                  <Ellipse Width="42" Height="42" Stroke="#22FFFFFF" StrokeThickness="3" />
+                  <Path Name="ringBlotterArc" Stroke="#F87171" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                  <TextBlock Name="ringBlotterPct" Text="0%" Foreground="#F87171" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Border>
+        </Grid>
+        <Grid Grid.Row="2" Margin="20,16,20,16">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
+          </Grid.ColumnDefinitions>
+          <Grid Grid.Column="0" Margin="0,0,18,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Quick Actions" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,12" />
+            <UniformGrid Grid.Row="1" Name="quickLaunchGrid" Columns="4" Rows="1" Height="116" Margin="0,0,0,20">
+              <Button Name="quickTileResident" Style="{StaticResource TileButtonStyle}" Height="116" Padding="8" Margin="0,0,10,0" Click="QuickAddResident_Click">
+                <StackPanel VerticalAlignment="Center">
+                  <Border Width="44" Height="44" CornerRadius="12" Margin="0,0,0,8" HorizontalAlignment="Center">
+                    <Border.Background>
+                      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#3B82F6" Offset="0" />
+                        <GradientStop Color="#1D4ED8" Offset="1" />
+                      </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                      <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.4" Color="#3B82F6" />
+                    </Border.Effect>
+                    <fa:IconBlock Icon="UserPlus" Foreground="#FFFFFFFF" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                  <TextBlock Text="Resident" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <Button Name="quickTileCert" Style="{StaticResource TileButtonStyle}" Height="116" Padding="8" Margin="0,0,10,0" Click="QuickAddCertificate_Click">
+                <StackPanel VerticalAlignment="Center">
+                  <Border Width="44" Height="44" CornerRadius="12" Margin="0,0,0,8" HorizontalAlignment="Center">
+                    <Border.Background>
+                      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#F59E0B" Offset="0" />
+                        <GradientStop Color="#D97706" Offset="1" />
+                      </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                      <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.4" Color="#F59E0B" />
+                    </Border.Effect>
+                    <fa:IconBlock Icon="FileSignature" Foreground="#FFFFFFFF" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                  <TextBlock Text="Document" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <Button Name="quickTileBlotter" Style="{StaticResource TileButtonStyle}" Height="116" Padding="8" Margin="0,0,10,0" Click="QuickAddBlotter_Click">
+                <StackPanel VerticalAlignment="Center">
+                  <Border Width="44" Height="44" CornerRadius="12" Margin="0,0,0,8" HorizontalAlignment="Center">
+                    <Border.Background>
+                      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#EF4444" Offset="0" />
+                        <GradientStop Color="#B91C1C" Offset="1" />
+                      </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                      <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.4" Color="#EF4444" />
+                    </Border.Effect>
+                    <fa:IconBlock Icon="ShieldAlt" Foreground="#FFFFFFFF" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                  <TextBlock Text="Blotter" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <Button Name="quickTileReports" Style="{StaticResource TileButtonStyle}" Height="116" Padding="8" Click="QuickOpenReports_Click">
+                <StackPanel VerticalAlignment="Center">
+                  <Border Width="44" Height="44" CornerRadius="12" Margin="0,0,0,8" HorizontalAlignment="Center">
+                    <Border.Background>
+                      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#8B5CF6" Offset="0" />
+                        <GradientStop Color="#6D28D9" Offset="1" />
+                      </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                      <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.4" Color="#8B5CF6" />
+                    </Border.Effect>
+                    <fa:IconBlock Icon="ChartPie" Foreground="#FFFFFFFF" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                  <TextBlock Text="Reports" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                </StackPanel>
+              </Button>
+            </UniformGrid>
+            <Grid Grid.Row="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+              </Grid.ColumnDefinitions>
+              <Border Grid.Column="0" Margin="0,0,10,0" Background="{DynamicResource ThemeCardBrush}" CornerRadius="16" Padding="18,16" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <DockPanel>
+                  <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Announcements" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                      <Button Name="btnAnnouncementRegistry" Content="Registry" Style="{StaticResource GhostButtonStyle}" Foreground="{DynamicResource ThemeAccentBrush}" Margin="0,0,8,0" Click="BtnOpenGovernanceRegistry_Click" />
+                      <Button Name="btnAnnouncementNew" Content="+ New" Style="{StaticResource GhostButtonStyle}" Foreground="{DynamicResource ThemeAccentBrush}" Click="BtnAnnouncementNew_Click" />
+                    </StackPanel>
+                  </Grid>
+                  <Grid Name="announcementsEmptyState" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,4">
+                    <StackPanel HorizontalAlignment="Center">
+                      <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Margin="0,0,0,8">
+                        <Border.Background>
+                          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FEF3C7" Offset="0" />
+                            <GradientStop Color="#FDE68A" Offset="1" />
+                          </LinearGradientBrush>
+                        </Border.Background>
+                        <fa:IconBlock Icon="Bullhorn" Foreground="#D97706" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <TextBlock Text="No announcements yet." Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11.5" HorizontalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                  <ScrollViewer Name="announcementsScroller" VerticalScrollBarVisibility="Auto" Height="110" Visibility="Collapsed">
+                    <StackPanel Name="announcementCards" />
+                  </ScrollViewer>
+                </DockPanel>
+              </Border>
+              <Border Name="projectsPanel" Grid.Column="1" Background="{DynamicResource ThemeCardBrush}" CornerRadius="16" Padding="18,16" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <DockPanel>
+                  <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Projects" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                      <Button Name="btnProjectRegistry" Content="Registry" Style="{StaticResource GhostButtonStyle}" Foreground="{DynamicResource ThemeAccentBrush}" Margin="0,0,8,0" Click="BtnOpenGovernanceRegistry_Click" />
+                      <Button Name="btnProjectNew" Content="+ New" Style="{StaticResource GhostButtonStyle}" Foreground="{DynamicResource ThemeAccentBrush}" Click="BtnProjectNew_Click" />
+                    </StackPanel>
+                  </Grid>
+                  <Grid Name="projectsEmptyState" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,4">
+                    <StackPanel HorizontalAlignment="Center">
+                      <Border Width="56" Height="56" CornerRadius="28" HorizontalAlignment="Center" Margin="0,0,0,8">
+                        <Border.Background>
+                          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#DBEAFE" Offset="0" />
+                            <GradientStop Color="#BFDBFE" Offset="1" />
+                          </LinearGradientBrush>
+                        </Border.Background>
+                        <fa:IconBlock Icon="HardHat" Foreground="#1D4ED8" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <TextBlock Text="No projects or programs yet." Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11.5" HorizontalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                  <ScrollViewer Name="projectsScroller" VerticalScrollBarVisibility="Auto" Height="110" Visibility="Collapsed">
+                    <StackPanel Name="projectCards" />
+                  </ScrollViewer>
+                </DockPanel>
+              </Border>
+            </Grid>
+          </Grid>
+          <StackPanel Grid.Column="1">
+            <Grid Name="governanceToolsHost" Margin="0,0,0,16">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <!-- Tab-style "Tools" label sitting on top of the panel -->
+              <Border Grid.Row="0" HorizontalAlignment="Left" Margin="14,0,0,-1" Panel.ZIndex="2"
+                      Background="{DynamicResource ThemeCardBrush}"
+                      BorderBrush="{DynamicResource ThemeBorderBrush}"
+                      BorderThickness="1,1,1,0" CornerRadius="12,12,0,0"
+                      Padding="18,8">
+                <TextBlock Text="Tools" FontSize="13" FontWeight="Bold"
+                           Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+              </Border>
+              <Border Grid.Row="1" Name="governanceToolsPanel"
+                      Background="{DynamicResource ThemeCardBrush}"
+                      BorderBrush="{DynamicResource ThemeBorderBrush}"
+                      BorderThickness="1" CornerRadius="18" Padding="0">
+                <Border.Effect>
+                  <DropShadowEffect BlurRadius="18" ShadowDepth="3" Opacity="0.22" Color="#000000" Direction="270" />
+                </Border.Effect>
+                <Grid Margin="0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Left vertical icon rail -->
+                  <StackPanel Grid.Column="0" Width="46" Margin="0,18,0,18" VerticalAlignment="Top">
+                    <Border Width="34" Height="34" CornerRadius="9" Background="#10FFFFFF" Margin="6,0,6,18">
+                      <fa:IconBlock Icon="HardDrive" FontSize="14" Foreground="{DynamicResource ThemeTextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Width="34" Height="34" CornerRadius="9" Background="#10FFFFFF" Margin="6,0,6,18">
+                      <fa:IconBlock Icon="Cog" FontSize="14" Foreground="{DynamicResource ThemeTextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Width="34" Height="34" CornerRadius="9" Background="#10FFFFFF" Margin="6,0,6,0">
+                      <fa:IconBlock Icon="Building" FontSize="14" Foreground="{DynamicResource ThemeTextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                  </StackPanel>
+                  <!-- Right content area: Backup / Settings / Database Status cards -->
+                  <StackPanel Grid.Column="1" Margin="4,16,16,16">
+                    <!-- Backup card -->
+                    <Button HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center"
+                            Background="#10FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1"
+                            Padding="14,10" Margin="0,0,0,12" Cursor="Hand">
+                      <Button.Template>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                          </Border>
+                        </ControlTemplate>
+                      </Button.Template>
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="Auto" />
+                          <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <!-- Server-cloud composite icon -->
+                        <Grid Grid.Column="0" Width="46" Height="46" Margin="0,0,12,0" VerticalAlignment="Center">
+                          <fa:IconBlock Icon="Cloud" FontSize="34" Foreground="#E2E8F0" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                          <Border Width="26" Height="14" CornerRadius="3" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,2">
+                            <Border.Background>
+                              <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#3B82F6" Offset="0" />
+                                <GradientStop Color="#1D4ED8" Offset="1" />
+                              </LinearGradientBrush>
+                            </Border.Background>
+                          </Border>
+                          <Border Width="26" Height="3" CornerRadius="1" Background="#0EA5E9" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                        </Grid>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                          <TextBlock Text="Backup" FontFamily="{StaticResource CenturyGothic}" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                          <TextBlock Name="backupLastTimeText" Text="Last Backup: never" FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" Margin="0,2,0,0" />
+                        </StackPanel>
+                      </Grid>
+                    </Button>
+                    <!-- Settings card -->
+                    <Button HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                            Background="#10FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1"
+                            Padding="14,12" Margin="0,0,0,12" Cursor="Hand">
+                      <Button.Template>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                          </Border>
+                        </ControlTemplate>
+                      </Button.Template>
+                      <StackPanel Orientation="Horizontal">
+                        <fa:IconBlock Icon="Cog" FontSize="20" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="0,0,12,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Settings" FontFamily="{StaticResource CenturyGothic}" FontWeight="Bold" FontSize="18" Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                    <!-- Database Status card -->
+                    <Border Background="#10FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="14" Padding="16,12">
+                      <StackPanel>
+                        <TextBlock Text="Database Status" FontFamily="{StaticResource CenturyGothic}" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="0,0,0,8" />
+                        <Border Height="86" CornerRadius="8" ClipToBounds="True" Margin="0,0,0,2">
+                          <Grid>
+                            <!-- Soft green-cyan glow background -->
+                            <Border CornerRadius="8">
+                              <Border.Background>
+                                <RadialGradientBrush GradientOrigin="0.5,1" Center="0.5,1" RadiusX="0.9" RadiusY="0.9">
+                                  <GradientStop Color="#5510B981" Offset="0" />
+                                  <GradientStop Color="#0010B981" Offset="1" />
+                                </RadialGradientBrush>
+                              </Border.Background>
+                            </Border>
+                            <!-- Filled area under the curve -->
+                            <Path Stretch="None" Stroke="Transparent">
+                              <Path.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                  <GradientStop Color="#7034D399" Offset="0" />
+                                  <GradientStop Color="#0034D399" Offset="1" />
+                                </LinearGradientBrush>
+                              </Path.Fill>
+                              <Path.Data>
+                                <PathGeometry>
+                                  <PathFigure StartPoint="0,86" IsClosed="True">
+                                    <LineSegment Point="0,52" />
+                                    <BezierSegment Point1="36,46" Point2="58,68" Point3="92,56" />
+                                    <BezierSegment Point1="116,48" Point2="130,18" Point3="158,18" />
+                                    <BezierSegment Point1="180,18" Point2="194,42" Point3="220,38" />
+                                    <BezierSegment Point1="240,34" Point2="252,28" Point3="280,28" />
+                                    <LineSegment Point="280,86" />
+                                  </PathFigure>
+                                </PathGeometry>
+                              </Path.Data>
+                            </Path>
+                            <!-- Smooth curve line -->
+                            <Path Stroke="#34D399" StrokeThickness="2.4" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                              <Path.Data>
+                                <PathGeometry>
+                                  <PathFigure StartPoint="0,52">
+                                    <BezierSegment Point1="36,46" Point2="58,68" Point3="92,56" />
+                                    <BezierSegment Point1="116,48" Point2="130,18" Point3="158,18" />
+                                    <BezierSegment Point1="180,18" Point2="194,42" Point3="220,38" />
+                                    <BezierSegment Point1="240,34" Point2="252,28" Point3="280,28" />
+                                  </PathFigure>
+                                </PathGeometry>
+                              </Path.Data>
+                            </Path>
+                            <!-- Glow dot at peak -->
+                            <Ellipse Width="10" Height="10" Fill="#34D399" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="153,13,0,0">
+                              <Ellipse.Effect>
+                                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#34D399" Opacity="1" />
+                              </Ellipse.Effect>
+                            </Ellipse>
+                          </Grid>
+                        </Border>
+                        <TextBlock Text="DATABASE HEALTHY" FontSize="10" FontWeight="Bold" Foreground="#34D399" HorizontalAlignment="Center" Margin="0,8,0,8" />
+                        <Border Height="1" Background="#22FFFFFF" Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal">
+                          <Border Width="18" Height="18" CornerRadius="9" BorderBrush="#34D399" BorderThickness="1.5">
+                            <fa:IconBlock Icon="Check" FontSize="9" Foreground="#34D399" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                          <TextBlock Text="Database ready" Margin="8,0,0,0" FontSize="12" FontWeight="Bold" Foreground="#34D399" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </Grid>
+            <!-- Hidden elements for code-behind compatibility -->
+            <Calendar Name="actionCalendar" Visibility="Collapsed" />
+            <TextBlock Name="calendarInfoText" Visibility="Collapsed" />
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -1,0 +1,124 @@
+<Window x:Class="baranggaysystem1.Views.Dialogs.FacilityBookingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fa="clr-namespace:FontAwesome.Sharp;assembly=FontAwesome.Sharp"
+        Title="Facility Booking" Width="640" Height="720"
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource BaseWindowStyle}"
+        ShowInTaskbar="False" ResizeMode="NoResize"
+        Background="{DynamicResource ThemeCardHoverBrush}">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- Green banner removed -->
+
+    <Grid Grid.Row="1" Margin="16,8">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- Facility -->
+      <StackPanel Grid.Row="0" Margin="0,0,0,8">
+        <TextBlock Text="Facility" Style="{StaticResource LabelTextStyle}" />
+        <ComboBox Name="facilityCombo" Style="{StaticResource StyledComboBoxStyle}"
+                  DisplayMemberPath="facility_name" SelectedValuePath="facility_id" />
+      </StackPanel>
+
+      <!-- Requester + Contact -->
+      <Grid Grid.Row="1" Margin="0,0,0,8">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Requester Name" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtRequester" Style="{StaticResource StyledTextBoxStyle}" MaxLength="150" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="Contact Number" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtContact" Style="{StaticResource StyledTextBoxStyle}" MaxLength="50" />
+        </StackPanel>
+      </Grid>
+
+      <!-- Purpose -->
+      <StackPanel Grid.Row="2" Margin="0,0,0,8">
+        <TextBlock Text="Purpose" Style="{StaticResource LabelTextStyle}" />
+        <TextBox Name="txtPurpose" Style="{StaticResource StyledTextBoxStyle}" Height="50"
+                 TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top"
+                 Padding="6" MaxLength="300" />
+      </StackPanel>
+
+      <!-- Start Date + Time -->
+      <Grid Grid.Row="3" Margin="0,0,0,8">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Start Date" Style="{StaticResource LabelTextStyle}" />
+          <DatePicker Name="dpStart" Height="30" Padding="2" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="Start Time (HH:MM)" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtStartTime" Style="{StaticResource StyledTextBoxStyle}" Text="08:00" MaxLength="5" />
+        </StackPanel>
+      </Grid>
+
+      <!-- End Date + Time -->
+      <Grid Grid.Row="4" Margin="0,0,0,8">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="End Date" Style="{StaticResource LabelTextStyle}" />
+          <DatePicker Name="dpEnd" Height="30" Padding="2" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="End Time (HH:MM)" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtEndTime" Style="{StaticResource StyledTextBoxStyle}" Text="17:00" MaxLength="5" />
+        </StackPanel>
+      </Grid>
+
+      <!-- Guests + Amount -->
+      <Grid Grid.Row="5" Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Expected Guests" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtGuests" Style="{StaticResource StyledTextBoxStyle}" Text="0" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="Total Amount (PHP)" Style="{StaticResource LabelTextStyle}" />
+          <TextBox Name="txtAmount" Style="{StaticResource StyledTextBoxStyle}" Text="0.00" />
+        </StackPanel>
+      </Grid>
+    </Grid>
+
+    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}"
+            BorderThickness="0,1,0,0" Padding="16,10">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Width="90" Height="32"
+                Margin="0,0,10,0" IsCancel="True" />
+        <Button Name="btnSave" Content="Save Booking" Style="{StaticResource PrimaryButtonStyle}"
+                Width="140" Height="32" IsDefault="True" Click="BtnSave_Click" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>
