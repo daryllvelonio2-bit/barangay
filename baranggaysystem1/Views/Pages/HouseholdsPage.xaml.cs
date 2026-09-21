@@ -311,6 +311,14 @@ public partial class HouseholdsPage : UserControl, IRefreshable
 		}
 	}
 
+	private void MainGrid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+	{
+		if (mainGrid.SelectedItem is DataRowView)
+		{
+			BtnEdit_Click(sender, e);
+		}
+	}
+
 	private void BtnClearSelection_Click(object sender, RoutedEventArgs e)
 	{
 		mainGrid.SelectedItem = null;

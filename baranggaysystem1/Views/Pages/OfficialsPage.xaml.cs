@@ -90,6 +90,14 @@ public partial class OfficialsPage : UserControl, IRefreshable
 			RefreshData);
 	}
 
+	private void MainGrid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+	{
+		if (mainGrid.SelectedItem is DataRowView)
+		{
+			BtnEdit_Click(sender, e);
+		}
+	}
+
 	private void BtnEdit_Click(object sender, RoutedEventArgs e)
 	{
 		if (mainGrid.SelectedItem is not DataRowView row) return;

@@ -134,7 +134,6 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}" Padding="14,6,14,6">
       <Grid>
@@ -219,7 +218,24 @@
       </Grid>
     </Border>
 
-    <Grid Grid.Row="2" Margin="20,16,20,0">
+    <Grid Grid.Row="2" Margin="20,16,20,16">
+      <!-- Hidden elements preserved for code-behind compatibility -->
+      <StackPanel Visibility="Collapsed">
+        <Border Name="contextActionBar">
+          <StackPanel>
+            <TextBlock Name="footerCountLabel" />
+            <TextBlock Name="contextHelpLabel" />
+            <StackPanel Name="programActionsPanel">
+              <Button Name="btnEditProgram" Click="BtnEditProgram_Click" />
+              <Button Name="btnDeleteProgram" Click="BtnDeleteProgram_Click" />
+            </StackPanel>
+            <StackPanel Name="releaseActionsPanel">
+              <Button Name="btnCancelRelease" Click="BtnCancelRelease_Click" />
+              <Button Name="btnOpenReport" Click="BtnOpenReport_Click" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </StackPanel>
       <Border Name="programViewPanel" Style="{StaticResource AyudaSurfaceCardStyle}" ClipToBounds="True">
         <Grid>
           <Grid.RowDefinitions>
@@ -242,7 +258,22 @@
             </Grid>
           </Border>
           <Grid Grid.Row="1">
-            <DataGrid Name="programGrid" Margin="10,8,10,10" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource AyudaDataGridRowStyle}" CellStyle="{StaticResource AyudaDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="70" HeadersVisibility="Column" CanUserAddRows="False" SelectionChanged="ProgramGrid_SelectionChanged">
+            <DataGrid Name="programGrid" Margin="10,8,10,10" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource AyudaDataGridRowStyle}" CellStyle="{StaticResource AyudaDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="70" HeadersVisibility="Column" CanUserAddRows="False" SelectionChanged="ProgramGrid_SelectionChanged" MouseDoubleClick="ProgramGrid_DoubleClick">
+              <DataGrid.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="Edit Assistance Budget" Click="BtnEditProgram_Click">
+                    <MenuItem.Icon>
+                      <fa:IconBlock Icon="Edit" FontSize="12" Foreground="{DynamicResource AccentBlueBrush}" />
+                    </MenuItem.Icon>
+                  </MenuItem>
+                  <Separator />
+                  <MenuItem Header="Archive Budget" Click="BtnDeleteProgram_Click">
+                    <MenuItem.Icon>
+                      <fa:IconBlock Icon="TrashAlt" FontSize="12" Foreground="#EF4444" />
+                    </MenuItem.Icon>
+                  </MenuItem>
+                </ContextMenu>
+              </DataGrid.ContextMenu>
               <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Program" Width="2*">
                   <DataGridTemplateColumn.CellTemplate>
@@ -331,6 +362,20 @@
           </Border>
           <Grid Grid.Row="1">
             <DataGrid Name="releaseGrid" Margin="10,8,10,10" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource AyudaDataGridRowStyle}" CellStyle="{StaticResource AyudaDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="70" HeadersVisibility="Column" CanUserAddRows="False" SelectionChanged="ReleaseGrid_SelectionChanged">
+              <DataGrid.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="Reverse Release" Click="BtnCancelRelease_Click">
+                    <MenuItem.Icon>
+                      <fa:IconBlock Icon="Ban" FontSize="12" Foreground="#EF4444" />
+                    </MenuItem.Icon>
+                  </MenuItem>
+                  <MenuItem Header="Open Distribution Report" Click="BtnOpenReport_Click">
+                    <MenuItem.Icon>
+                      <fa:IconBlock Icon="FilePdf" FontSize="12" Foreground="{DynamicResource AccentBlueBrush}" />
+                    </MenuItem.Icon>
+                  </MenuItem>
+                </ContextMenu>
+              </DataGrid.ContextMenu>
               <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Reference / Batch" Width="1.55*">
                   <DataGridTemplateColumn.CellTemplate>
@@ -380,50 +425,5 @@
       </Border>
     </Grid>
 
-    <Border Name="contextActionBar" Grid.Row="3" Margin="20,12,20,16" Padding="14,10" Style="{StaticResource AyudaSurfaceCardStyle}" Visibility="Collapsed">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <StackPanel>
-          <TextBlock Name="footerCountLabel" Text="Choose a budget program." Style="{StaticResource SmallTextStyle}" FontWeight="SemiBold" />
-          <TextBlock Name="contextHelpLabel" Text="Only actions for the current selection are shown." Style="{StaticResource SmallTextStyle}" Margin="0,3,0,0" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-          <StackPanel Name="programActionsPanel" Orientation="Horizontal">
-            <Button Name="btnEditProgram" Style="{StaticResource SecondaryButtonStyle}" Height="30" MinWidth="0" Padding="10,0" Margin="0,0,8,0" Click="BtnEditProgram_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Edit" FontSize="10" Margin="0,0,6,0" VerticalAlignment="Center" />
-                <TextBlock Text="Edit Budget" VerticalAlignment="Center" FontSize="11" />
-              </StackPanel>
-            </Button>
-            <Button Name="btnDeleteProgram" Style="{StaticResource SecondaryButtonStyle}" Height="30" MinWidth="0" Padding="10,0" Click="BtnDeleteProgram_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="TrashAlt" FontSize="10" Margin="0,0,6,0" VerticalAlignment="Center" />
-                <TextBlock Text="Archive Budget" VerticalAlignment="Center" FontSize="11" />
-              </StackPanel>
-            </Button>
-          </StackPanel>
-          <StackPanel Name="releaseActionsPanel" Orientation="Horizontal" Visibility="Collapsed">
-            <Button Name="btnCancelRelease" Style="{StaticResource SecondaryButtonStyle}" Height="30" MinWidth="0" Padding="10,0" Margin="0,0,8,0" Click="BtnCancelRelease_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Ban" FontSize="10" Margin="0,0,6,0" VerticalAlignment="Center" />
-                <TextBlock Text="Reverse Release" VerticalAlignment="Center" FontSize="11" />
-              </StackPanel>
-            </Button>
-            <Button Name="btnOpenReport" Style="{StaticResource SecondaryButtonStyle}" Height="30" MinWidth="0" Padding="10,0" Margin="0,0,8,0" Click="BtnOpenReport_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="FilePdf" FontSize="10" Margin="0,0,6,0" VerticalAlignment="Center" />
-                <TextBlock Text="Open Report" VerticalAlignment="Center" FontSize="11" />
-              </StackPanel>
-            </Button>
-            <Button Style="{StaticResource GhostButtonStyle}" Height="30" MinWidth="0" Padding="8,0" Click="BtnClearReleaseSelection_Click">
-              <TextBlock Text="Program Actions" FontSize="10.5" />
-            </Button>
-          </StackPanel>
-        </StackPanel>
-      </Grid>
-    </Border>
   </Grid>
 </UserControl>

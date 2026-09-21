@@ -148,8 +148,6 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}" Padding="22,8,22,6">
       <Grid>
@@ -163,7 +161,7 @@
           </Border>
           <StackPanel VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Name="pageTitleText" Text="Resident Records" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource CenturyGothic}" />
+              <TextBlock Name="pageTitleText" Text="Resident Records" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource SegoeUi}" />
               <!-- Registry filter tabs inline -->
               <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
                 <RadioButton Name="filterAll" Content="All" GroupName="RegistryFilter" IsChecked="True" Style="{StaticResource RibbonRadioTabStyle}" Checked="RegistryFilter_Changed" />
@@ -243,18 +241,34 @@
         </Button>
       </Grid>
     </Border>
-    <Border Grid.Row="2" Margin="20,8,20,0" ClipToBounds="True" Style="{StaticResource ResidentSurfaceCardStyle}">
+    <Border Grid.Row="2" Margin="20,8,20,16" ClipToBounds="True" Style="{StaticResource ResidentSurfaceCardStyle}">
       <!-- Hidden elements referenced by code-behind -->
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Name="tableTitleText" Visibility="Collapsed" />
-        <TextBlock Name="tableMetaLabel" Visibility="Collapsed" />
-        <TextBlock Name="tableVisibleLabel" Visibility="Collapsed" />
-        <TextBlock Name="tableSelectionLabel" Visibility="Collapsed" />
+        <StackPanel Visibility="Collapsed">
+          <TextBlock Name="tableTitleText" />
+          <TextBlock Name="tableMetaLabel" />
+          <TextBlock Name="tableVisibleLabel" />
+          <TextBlock Name="tableSelectionLabel" />
+          <TextBlock Name="footerCountLabel" />
+          <Border Name="contextActionBar">
+            <StackPanel>
+              <TextBlock Name="selectedResidentLabel" />
+              <TextBlock Name="selectedResidentMetaLabel" />
+              <Button Name="btnContextBlotter" Click="BtnContextBlotter_Click" />
+              <Button Name="btnContextBlotterHistory" Click="BtnContextBlotterHistory_Click" />
+              <Button Name="btnContextCert" Click="BtnContextCert_Click" />
+              <Button Name="btnContextHousehold" Click="BtnContextHousehold_Click" />
+              <Button Name="btnContextPayment" Click="BtnContextPayment_Click" />
+            </StackPanel>
+          </Border>
+          <Button Name="btnEdit" Click="BtnEdit_Click" />
+          <Button Name="btnDelete" Click="BtnDelete_Click" />
+        </StackPanel>
         <Grid Row="0">
-          <DataGrid Name="mainGrid" Margin="6,4,6,6" Background="Transparent" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource ResidentDataGridRowStyle}" CellStyle="{StaticResource ResidentDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="38" HeadersVisibility="Column" CanUserAddRows="False" SelectionChanged="MainGrid_SelectionChanged">
+          <DataGrid Name="mainGrid" Margin="6,4,6,6" Background="Transparent" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource ResidentDataGridRowStyle}" CellStyle="{StaticResource ResidentDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="42" HeadersVisibility="Column" CanUserAddRows="False" SelectionChanged="MainGrid_SelectionChanged" MouseDoubleClick="MainGrid_DoubleClick">
             <DataGrid.ContextMenu>
               <ContextMenu>
                 <MenuItem Header="Edit Resident" Click="BtnEdit_Click">
@@ -312,79 +326,6 @@
         </Grid>
       </Grid>
     </Border>
-    <Border Name="contextActionBar" Grid.Row="3" Visibility="Collapsed" Margin="20,6,20,0" Padding="12,8" Style="{StaticResource ResidentSurfaceCardStyle}">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-          <fa:IconBlock Icon="Bolt" Foreground="#818CF8" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0" />
-          <TextBlock Text="Quick actions for" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
-          <TextBlock Name="selectedResidentLabel" Text="" VerticalAlignment="Center" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" />
-          <TextBlock Name="selectedResidentMetaLabel" Text="" VerticalAlignment="Center" FontSize="10" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="8,0,0,0" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-          <Button Name="btnContextBlotter" Style="{StaticResource ContextualActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,6,0" Click="BtnContextBlotter_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Gavel" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Text="File Blotter" VerticalAlignment="Center" Foreground="#FFFFFFFF" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnContextBlotterHistory" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,6,0" Click="BtnContextBlotterHistory_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="History" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Text="Cases" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnContextCert" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,6,0" Click="BtnContextCert_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="FileContract" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Text="Certificate" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnContextHousehold" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,6,0" Click="BtnContextHousehold_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Home" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Text="Household" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnContextPayment" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Click="BtnContextPayment_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="MoneyBillWave" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Text="Payment" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-        </StackPanel>
-        <Button Grid.Column="3" Style="{StaticResource GhostButtonStyle}" Padding="2" Width="20" Height="20" Foreground="{DynamicResource ThemeTextMutedBrush}" Click="BtnClearSelection_Click">
-          <fa:IconBlock Icon="Times" FontSize="10" />
-        </Button>
-      </Grid>
-    </Border>
-    <Border Grid.Row="4" Margin="20,6,20,8" Padding="14,8" Style="{StaticResource ResidentSurfaceCardStyle}">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <TextBlock Name="footerCountLabel" Text="No records loaded." FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center" />
-        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-          <Button Name="btnEdit" Style="{StaticResource EditButtonStyle}" Height="28" MinWidth="0" Padding="10,0" FontSize="11" Margin="0,0,8,0" IsEnabled="False" Click="BtnEdit_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Edit" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Text="Edit Selected" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnDelete" Style="{StaticResource DangerButtonStyle}" Height="28" MinWidth="0" Padding="10,0" FontSize="11" IsEnabled="False" Click="BtnDelete_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Trash" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center" />
-              <TextBlock Text="Archive" VerticalAlignment="Center" Foreground="#FFFFFFFF" />
-            </StackPanel>
-          </Button>
-        </StackPanel>
-      </Grid>
-    </Border>
+
   </Grid>
 </UserControl>

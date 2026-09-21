@@ -129,8 +129,6 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}" Padding="14,4,14,4">
       <Grid>
@@ -292,15 +290,66 @@
         </Button>
       </Grid>
     </Border>
-    <Border Grid.Row="3" Style="{StaticResource HouseholdSurfaceCardStyle}" Margin="14,6,14,0" Padding="0" ClipToBounds="True">
+    <Border Grid.Row="3" Style="{StaticResource HouseholdSurfaceCardStyle}" Margin="14,6,14,16" Padding="0" ClipToBounds="True">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <!-- Hidden elements referenced by code-behind -->
-        <TextBlock Name="tableSummaryLabel" Visibility="Collapsed" />
+        <!-- Hidden elements preserved for code-behind compatibility -->
+        <StackPanel Visibility="Collapsed">
+          <TextBlock Name="tableSummaryLabel" />
+          <Border Name="contextActionBar">
+            <StackPanel>
+              <TextBlock Name="selectedRecordLabel" />
+              <TextBlock Name="selectedRecordMetaLabel" />
+              <Button Name="btnEditDetails" Click="BtnEditDetails_Click" />
+              <Button Name="btnViewMembers" Click="BtnEdit_Click" />
+              <Button Name="btnTransferHistory" Click="BtnTransferHistory_Click" />
+              <Button Name="btnCertificate" Click="BtnCertificate_Click" />
+              <Button Name="btnTransfer" Click="BtnTransfer_Click" />
+              <Button Name="btnDeleteHousehold" Click="BtnDelete_Click" />
+            </StackPanel>
+          </Border>
+          <TextBlock Name="footerCountLabel" />
+          <TextBlock Name="lastRefreshLabel" />
+        </StackPanel>
         <Grid Row="0">
-          <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource HouseholdDataGridHeaderStyle}" RowStyle="{StaticResource HouseholdDataGridRowStyle}" CellStyle="{StaticResource HouseholdDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="40" HeadersVisibility="Column" Margin="6,4,6,6" SelectionChanged="MainGrid_SelectionChanged">
+          <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource HouseholdDataGridHeaderStyle}" RowStyle="{StaticResource HouseholdDataGridRowStyle}" CellStyle="{StaticResource HouseholdDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="42" HeadersVisibility="Column" Margin="6,4,6,6" SelectionChanged="MainGrid_SelectionChanged" MouseDoubleClick="MainGrid_DoubleClick">
+            <DataGrid.ContextMenu>
+              <ContextMenu>
+                <MenuItem Header="Household Members &amp; Family" Click="BtnEdit_Click">
+                  <MenuItem.Icon>
+                    <fa:IconBlock Icon="Users" FontSize="12" Foreground="#818CF8" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Edit Household Details" Click="BtnEditDetails_Click">
+                  <MenuItem.Icon>
+                    <fa:IconBlock Icon="Edit" FontSize="12" Foreground="{DynamicResource AccentBlueBrush}" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Transfer Members" Click="BtnTransfer_Click">
+                  <MenuItem.Icon>
+                    <fa:IconBlock Icon="ExchangeAlt" FontSize="12" Foreground="#10B981" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Transfer History" Click="BtnTransferHistory_Click">
+                  <MenuItem.Icon>
+                    <fa:IconBlock Icon="History" FontSize="12" Foreground="#8B5CF6" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Issue Household Certificate" Click="BtnCertificate_Click">
+                  <MenuItem.Icon>
+                    <fa:IconBlock Icon="FileContract" FontSize="12" Foreground="#06B6D4" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Archive Household" Click="BtnDelete_Click">
+                  <MenuItem.Icon>
+                    <fa:IconBlock Icon="TrashAlt" FontSize="12" Foreground="#EF4444" />
+                  </MenuItem.Icon>
+                </MenuItem>
+              </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
               <DataGridTemplateColumn Header="Household" Width="120">
                 <DataGridTemplateColumn.CellTemplate>
@@ -365,69 +414,6 @@
         </Grid>
       </Grid>
     </Border>
-    <Border Name="contextActionBar" Grid.Row="4" Visibility="Collapsed" Margin="20,6,20,0" Padding="10,6" CornerRadius="10" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" Background="{DynamicResource ThemeCardBrush}">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-          <fa:IconBlock Icon="Home" Foreground="#818CF8" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center" />
-          <TextBlock Name="selectedRecordLabel" Text="" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center" />
-          <TextBlock Name="selectedRecordMetaLabel" Text="" FontSize="10" Foreground="{DynamicResource ThemeTextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
-          <Button Name="btnEditDetails" Style="{StaticResource ContextualActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,5,0" Click="BtnEditDetails_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Edit" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="Edit" VerticalAlignment="Center" Foreground="#FFFFFFFF" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnViewMembers" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,5,0" Click="BtnEdit_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Users" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="Family" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnTransferHistory" Visibility="Collapsed" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,5,0" Click="BtnTransferHistory_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="History" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="History" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnCertificate" Visibility="Collapsed" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,5,0" Click="BtnCertificate_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="FileAlt" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="Cert" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnTransfer" Style="{StaticResource ActionButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,5,0" Click="BtnTransfer_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="ExchangeAlt" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="Transfer" VerticalAlignment="Center" FontSize="10" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnDeleteHousehold" Style="{StaticResource DangerButtonStyle}" Height="26" Padding="8,0" FontSize="10" Margin="0,0,5,0" Click="BtnDelete_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="TrashAlt" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="Archive" VerticalAlignment="Center" Foreground="#FFFFFFFF" FontSize="10" />
-            </StackPanel>
-          </Button>
-        </StackPanel>
-        <Button Grid.Column="3" Style="{StaticResource GhostButtonStyle}" Padding="2" Width="20" Height="20" Foreground="{DynamicResource ThemeTextMutedBrush}" Click="BtnClearSelection_Click">
-          <fa:IconBlock Icon="Times" FontSize="10" />
-        </Button>
-      </Grid>
-    </Border>
-    <Border Grid.Row="5" Margin="20,6,20,8" Background="Transparent" Height="24">
-      <Grid>
-        <TextBlock Name="footerCountLabel" Text="0 households loaded." Style="{StaticResource SmallTextStyle}" VerticalAlignment="Center" />
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-          <TextBlock Name="lastRefreshLabel" Text="" Style="{StaticResource SmallTextStyle}" Opacity="0.7" />
-        </StackPanel>
-      </Grid>
-    </Border>
+
   </Grid>
 </UserControl>

@@ -218,6 +218,14 @@ public partial class PaymentsPage : UserControl, IRefreshable
 		selectedRecordLabel.Text = Convert.ToString(dataRowView["or_no"]) ?? "Unknown OR";
 	}
 
+	private void MainGrid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+	{
+		if (mainGrid.SelectedItem is DataRowView)
+		{
+			BtnView_Click(sender, e);
+		}
+	}
+
 	private void BtnClearSelection_Click(object sender, RoutedEventArgs e)
 	{
 		mainGrid.SelectedItem = null;

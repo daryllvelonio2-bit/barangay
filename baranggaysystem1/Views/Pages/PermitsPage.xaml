@@ -4,8 +4,6 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="36" />
     </Grid.RowDefinitions>
     <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}">
       <Grid>
@@ -23,9 +21,37 @@
         <Button Grid.Column="2" Content="Refresh" Style="{StaticResource SecondaryButtonStyle}" Click="BtnRefresh_Click" />
       </Grid>
     </Border>
-    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" Margin="20,14,20,0" CornerRadius="8" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" ClipToBounds="True">
+    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" Margin="20,14,20,16" CornerRadius="8" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" ClipToBounds="True">
       <Grid>
-        <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource StyledDataGridRowStyle}" AutoGenerateColumns="False" IsReadOnly="True" SelectionChanged="MainGrid_SelectionChanged">
+        <!-- Hidden elements preserved for code-behind compatibility -->
+        <StackPanel Visibility="Collapsed">
+          <Border Name="contextActionBar">
+            <StackPanel>
+              <TextBlock Name="selectedRecordLabel" />
+              <Button Name="btnAdvance" Click="BtnAdvance_Click">
+                <TextBlock Name="actionLabel" />
+              </Button>
+              <Button Name="btnCancel" Click="BtnCancel_Click" />
+            </StackPanel>
+          </Border>
+          <TextBlock Name="footerCountLabel" />
+        </StackPanel>
+        <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource StyledDataGridRowStyle}" AutoGenerateColumns="False" IsReadOnly="True" SelectionChanged="MainGrid_SelectionChanged" MouseDoubleClick="MainGrid_DoubleClick">
+          <DataGrid.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Process / Advance Request" Click="BtnAdvance_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="ArrowRight" FontSize="12" Foreground="#10B981" />
+                </MenuItem.Icon>
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="Cancel Permit Request" Click="BtnCancel_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="TimesCircle" FontSize="12" Foreground="#EF4444" />
+                </MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </DataGrid.ContextMenu>
           <DataGrid.Columns>
             <DataGridTextColumn Header="Request" Binding="{Binding tracking_code}" Width="145" />
             <DataGridTextColumn Header="Resident" Binding="{Binding resident_name}" Width="*" />
@@ -40,17 +66,5 @@
         </StackPanel>
       </Grid>
     </Border>
-    <Border Name="contextActionBar" Grid.Row="3" Visibility="Collapsed" Background="{DynamicResource ThemeCardHoverBrush}" Margin="20,10,20,0" Padding="14,9" CornerRadius="8" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
-      <Grid>
-        <StackPanel Orientation="Horizontal">
-          <TextBlock Name="selectedRecordLabel" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,18,0" />
-          <Button Name="btnAdvance" Style="{StaticResource PrimaryButtonStyle}" Click="BtnAdvance_Click" Margin="0,0,8,0">
-            <TextBlock Name="actionLabel" Text="Start Review" />
-          </Button>
-          <Button Name="btnCancel" Content="Cancel Request" Style="{StaticResource SecondaryButtonStyle}" Click="BtnCancel_Click" />
-        </StackPanel>
-      </Grid>
-    </Border>
-    <Border Grid.Row="4" Margin="20,6,20,10"><TextBlock Name="footerCountLabel" Style="{StaticResource SmallTextStyle}" VerticalAlignment="Center" /></Border>
   </Grid>
 </UserControl>

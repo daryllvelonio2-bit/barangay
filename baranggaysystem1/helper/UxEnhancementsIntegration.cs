@@ -98,6 +98,10 @@ internal static class UxEnhancementsIntegration
         {
             switch (dialogId)
             {
+                case "ToggleSidebar":
+                    _mainWindow.ToggleSidebar();
+                    break;
+
                 case "GlobalSearch":
                     new GlobalSearchWindow { Owner = _mainWindow }.ShowDialog();
                     break;

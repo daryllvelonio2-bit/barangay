@@ -388,6 +388,14 @@ public partial class AyudaPage : UserControl, IRefreshable
 		});
 	}
 
+	private void ProgramGrid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+	{
+		if (programGrid.SelectedItem is DataRowView)
+		{
+			BtnEditProgram_Click(sender, e);
+		}
+	}
+
 	private void BtnEditProgram_Click(object sender, RoutedEventArgs e)
 	{
 		if (!(programGrid.SelectedItem is DataRowView dataRowView))

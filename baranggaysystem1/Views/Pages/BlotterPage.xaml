@@ -153,8 +153,6 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}" Padding="14,5,14,5">
       <Grid>
@@ -255,12 +253,27 @@
         </Button>
       </Grid>
     </Border>
-    <Border Grid.Row="3" Style="{StaticResource BlotterSurfaceCardStyle}" Margin="10,4,10,0" ClipToBounds="True" CornerRadius="8">
+    <Border Grid.Row="3" Style="{StaticResource BlotterSurfaceCardStyle}" Margin="10,4,10,16" ClipToBounds="True" CornerRadius="8">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
           <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <!-- Hidden elements preserved for code-behind compatibility -->
+        <StackPanel Visibility="Collapsed">
+          <Border Name="contextActionBar">
+            <StackPanel>
+              <TextBlock Name="selectedRecordLabel" />
+              <TextBlock Name="selectedPartiesLabel" />
+              <TextBlock Name="selectedRecordMetaLabel" />
+              <Button Name="btnEditCase" Click="BtnEdit_Click" />
+              <Button Name="btnResolve" Click="BtnEdit_Click" />
+              <Button Name="btnReferral" Click="BtnEdit_Click" />
+            </StackPanel>
+          </Border>
+          <TextBlock Name="footerCountLabel" />
+          <TextBlock Name="lastRefreshLabel" />
+        </StackPanel>
         <Border Grid.Row="0" Background="{DynamicResource ThemeGridRowAltBgBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="0,0,0,1" Padding="10,6">
           <Grid>
             <Grid.ColumnDefinitions>
@@ -277,7 +290,7 @@
           </Grid>
         </Border>
         <Grid Row="1">
-          <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource BlotterDataGridHeaderStyle}" RowStyle="{StaticResource BlotterDataGridRowStyle}" CellStyle="{StaticResource BlotterDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="76" HeadersVisibility="Column" SelectionChanged="MainGrid_SelectionChanged">
+          <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource BlotterDataGridHeaderStyle}" RowStyle="{StaticResource BlotterDataGridRowStyle}" CellStyle="{StaticResource BlotterDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="76" HeadersVisibility="Column" SelectionChanged="MainGrid_SelectionChanged" MouseDoubleClick="MainGrid_DoubleClick">
             <DataGrid.ContextMenu>
               <ContextMenu>
                 <MenuItem Header="Open Case Details" Click="BtnEdit_Click">
@@ -353,61 +366,6 @@
             <TextBlock Name="emptyLabel" Text="No blotter cases match the current filters." Style="{StaticResource SubtitleTextStyle}" HorizontalAlignment="Center" />
           </StackPanel>
         </Grid>
-      </Grid>
-    </Border>
-    <Border Name="contextActionBar" Grid.Row="4" Visibility="Collapsed" Margin="20,12,20,0" Padding="16" CornerRadius="18" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" Background="{DynamicResource ThemeCardBrush}">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Orientation="Horizontal">
-          <Border Width="46" Height="46" CornerRadius="14" Background="#33EF4444" Margin="0,0,14,0">
-            <fa:IconBlock Icon="Gavel" Foreground="#F87171" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
-          </Border>
-          <StackPanel VerticalAlignment="Center">
-            <TextBlock Text="Selected Case" Style="{StaticResource SmallTextStyle}" FontWeight="Bold" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
-            <TextBlock Name="selectedRecordLabel" Text="BLT-2026-00001" FontFamily="{StaticResource CenturyGothic}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="0,3,0,0" />
-            <TextBlock Name="selectedPartiesLabel" Text="Complainant vs Respondent" Style="{StaticResource BlotterSelectionMetaStyle}" Margin="0,4,0,0" />
-            <TextBlock Name="selectedRecordMetaLabel" Text="General | ONGOING | Apr 20, 2026" Style="{StaticResource BlotterSelectionMetaStyle}" Margin="0,3,0,0" />
-          </StackPanel>
-        </StackPanel>
-        <WrapPanel Grid.Column="1" VerticalAlignment="Center">
-          <Button Name="btnEditCase" Style="{StaticResource ContextualActionButtonStyle}" Margin="0,0,8,8" Click="BtnEdit_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="FolderOpen" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-              <TextBlock Text="Open Details" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnResolve" Style="{StaticResource ActionButtonStyle}" Margin="0,0,8,8" Click="BtnEdit_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="CheckCircle" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-              <TextBlock Text="Resolve / Close" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-          <Button Name="btnReferral" Style="{StaticResource ActionButtonStyle}" Margin="0,0,8,8" Click="BtnEdit_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="ExternalLinkAlt" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-              <TextBlock Text="Refer Case" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-          <Button Style="{StaticResource GhostButtonStyle}" Margin="0,0,0,8" Click="BtnClearSelection_Click">
-            <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Times" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-              <TextBlock Text="Clear Selection" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-        </WrapPanel>
-      </Grid>
-    </Border>
-    <Border Grid.Row="5" Margin="20,10,20,14" Background="Transparent" Height="38">
-      <Grid>
-        <TextBlock Name="footerCountLabel" Text="0 case(s) loaded." Style="{StaticResource SmallTextStyle}" VerticalAlignment="Center" />
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-          <TextBlock Name="lastRefreshLabel" Text="Last refreshed --" Style="{StaticResource SmallTextStyle}" Opacity="0.7" />
-          <TextBlock Text="  |  " Style="{StaticResource SmallTextStyle}" Opacity="0.5" />
-          <TextBlock Text="System Version 2.0.4 | Professional Edition" Style="{StaticResource SmallTextStyle}" Opacity="0.5" />
-        </StackPanel>
       </Grid>
     </Border>
   </Grid>

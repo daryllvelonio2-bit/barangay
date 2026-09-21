@@ -208,34 +208,19 @@ public partial class FacilityBookingPage : UserControl, IRefreshable
         }
     }
 
-    private async void BtnNewBooking_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new FacilityBookingWindow(null);
-        var adapter = new DialogContentAdapter(dialog);
-
-        var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Booking", IconChar.Save,
-            (s, args) =>
-            {
-                _isBookingsTab = true;
-                NavigationService.Instance.NavigateBackFromFullscreen("FacilityBooking", refreshOnReturn: true);
-            });
-
-        NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
-        {
-            Title = "New Facility Booking",
-            Subtitle = "Reserve a facility for an event or activity",
-            OriginRoute = "FacilityBooking",
-            Content = adapter,
-            Icon = IconChar.CalendarPlus,
-            ToolbarItems = new List<UIElement> { saveButton },
-            ShowSideToolbar = false,
-            OnSaved = () => RefreshData()
-        });
-    }
-
     private void MainGrid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
         if (_isBookingsTab && _selectedId.HasValue) OpenEditDialog(_selectedId.Value);
+    }
+
+    private void BtnNewBooking_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new FacilityBookingWindow(null) { Owner = Window.GetWindow(this) };
+        if (dialog.ShowDialog() == true)
+        {
+            _isBookingsTab = true;
+            RefreshData();
+        }
     }
 
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
@@ -243,28 +228,13 @@ public partial class FacilityBookingPage : UserControl, IRefreshable
         if (_isBookingsTab && _selectedId.HasValue) OpenEditDialog(_selectedId.Value);
     }
 
-    private async void OpenEditDialog(int bookingId)
+    private void OpenEditDialog(int bookingId)
     {
-        var dialog = new FacilityBookingWindow(bookingId);
-        var adapter = new DialogContentAdapter(dialog);
-
-        var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Changes", IconChar.Save,
-            (s, args) =>
-            {
-                NavigationService.Instance.NavigateBackFromFullscreen("FacilityBooking", refreshOnReturn: true);
-            });
-
-        NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+        var dialog = new FacilityBookingWindow(bookingId) { Owner = Window.GetWindow(this) };
+        if (dialog.ShowDialog() == true)
         {
-            Title = "Edit Booking",
-            Subtitle = "Update booking details",
-            OriginRoute = "FacilityBooking",
-            Content = adapter,
-            Icon = IconChar.Edit,
-            ToolbarItems = new List<UIElement> { saveButton },
-            ShowSideToolbar = false,
-            OnSaved = () => RefreshData()
-        });
+            RefreshData();
+        }
     }
 
     private async void BtnApprove_Click(object sender, RoutedEventArgs e)

@@ -52,6 +52,10 @@ internal static class KeyboardShortcutManager
 
         // Register input bindings
         mainWindow.InputBindings.Add(new KeyBinding(
+            new RelayShortcutCommand(() => DialogRequested?.Invoke("ToggleSidebar")),
+            Key.B, ModifierKeys.Control));
+
+        mainWindow.InputBindings.Add(new KeyBinding(
             new RelayShortcutCommand(() => DialogRequested?.Invoke("GlobalSearch")),
             Key.K, ModifierKeys.Control));
 
@@ -111,6 +115,7 @@ internal static class KeyboardShortcutManager
     {
         return @"Keyboard Shortcuts:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Ctrl+B              Toggle Sidebar
 Ctrl+K              Global Search
 Ctrl+N              New Resident
 Ctrl+Shift+N        New Certificate Request

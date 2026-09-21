@@ -103,6 +103,14 @@ public partial class PermitsPage : UserControl, IRefreshable
 		contextActionBar.Visibility = Visibility.Visible;
 	}
 
+	private void MainGrid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+	{
+		if (mainGrid.SelectedItem is DataRowView)
+		{
+			BtnAdvance_Click(sender, e);
+		}
+	}
+
 	private async void BtnAdvance_Click(object sender, RoutedEventArgs e)
 	{
 		if (mainGrid.SelectedItem is not DataRowView row) return;

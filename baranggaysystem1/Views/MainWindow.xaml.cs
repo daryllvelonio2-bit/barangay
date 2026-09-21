@@ -23,7 +23,7 @@ public partial class MainWindow : Window
 {
 	private const double ExpandedSidebarWidth = 200.0;
 
-	private const double CollapsedSidebarWidth = 52.0;
+	private const double CollapsedSidebarWidth = 60.0;
 
 	private readonly DispatcherTimer _clockTimer = new DispatcherTimer();
 
@@ -111,6 +111,7 @@ public partial class MainWindow : Window
 		sidebarUsername.Text = text;
 		sidebarRole.Text = text2;
 		sidebarUserInitial.Text = text3;
+		sidebarUserInitial.ToolTip = $"{text} ({text2})";
 		topBarInitial.Text = text3;
 		RefreshBranding();
 		ApplyRoleVisibility();
@@ -165,24 +166,30 @@ public partial class MainWindow : Window
 	private void ApplyRoleVisibility()
 	{
 		SetNav(navGovernanceRegistry, RouteAuthorization.CanNavigate("GovernanceRegistry"));
+		SetNav(navResidents, RouteAuthorization.CanNavigate("ResidentWorkspace"));
 		SetNav(navHouseholds, RouteAuthorization.CanNavigate("Households"));
+		SetNav(navClearances, RouteAuthorization.CanNavigate("Clearances"));
 		SetNav(navBlotter, RouteAuthorization.CanNavigate("ResidentCases"));
 		SetNav(navTanod, RouteAuthorization.CanNavigate("TanodPatrol"));
 		SetNav(navEmergencyContacts, RouteAuthorization.CanNavigate("EmergencyContacts"));
+		SetNav(navCategories, RouteAuthorization.CanNavigate("ResidentCategories"));
+		SetNav(navGroupCommunity, navResidents.Visibility == Visibility.Visible || navHouseholds.Visibility == Visibility.Visible || navClearances.Visibility == Visibility.Visible || navBlotter.Visibility == Visibility.Visible || navTanod.Visibility == Visibility.Visible || navEmergencyContacts.Visibility == Visibility.Visible || navCategories.Visibility == Visibility.Visible);
+
 		SetNav(navPayments, RouteAuthorization.CanNavigate("ResidentPayments"));
 		SetNav(navAyuda, RouteAuthorization.CanNavigate("Ayuda"));
 		SetNav(navCollections, RouteAuthorization.CanNavigate("Collections"));
 		SetNav(navGroupFinance, navPayments.Visibility == Visibility.Visible || navAyuda.Visibility == Visibility.Visible || navCollections.Visibility == Visibility.Visible);
+
 		SetNav(navMeetings, RouteAuthorization.CanNavigate("Meetings"));
 		SetNav(navFacilityBooking, RouteAuthorization.CanNavigate("FacilityBooking"));
+		SetNav(navReports, RouteAuthorization.CanNavigate("Reports"));
 		SetNav(navOfficials, RouteAuthorization.CanNavigate("Officials"));
 		SetNav(navStaff, RouteAuthorization.CanNavigate("StaffUsers"));
 		SetNav(navRoles, RouteAuthorization.CanNavigate("RolePermissions"));
 		SetNav(navLogs, RouteAuthorization.CanNavigate("SystemLogs"));
 		SetNav(navNotificationOutbox, RouteAuthorization.CanNavigate("NotificationOutbox"));
 		SetNav(navSettings, RouteAuthorization.CanNavigate("Settings"));
-		SetNav(navGroupBlotter, navBlotter.Visibility == Visibility.Visible || navTanod.Visibility == Visibility.Visible);
-		SetNav(navGroupAdmin, navOfficials.Visibility == Visibility.Visible || navStaff.Visibility == Visibility.Visible || navRoles.Visibility == Visibility.Visible || navLogs.Visibility == Visibility.Visible || navNotificationOutbox.Visibility == Visibility.Visible || navSettings.Visibility == Visibility.Visible || navMeetings.Visibility == Visibility.Visible || navFacilityBooking.Visibility == Visibility.Visible);
+		SetNav(navGroupAdmin, navOfficials.Visibility == Visibility.Visible || navStaff.Visibility == Visibility.Visible || navRoles.Visibility == Visibility.Visible || navLogs.Visibility == Visibility.Visible || navNotificationOutbox.Visibility == Visibility.Visible || navSettings.Visibility == Visibility.Visible || navMeetings.Visibility == Visibility.Visible || navFacilityBooking.Visibility == Visibility.Visible || navReports.Visibility == Visibility.Visible);
 	}
 
 	private static void SetNav(UIElement element, bool visible)
@@ -267,6 +274,7 @@ public partial class MainWindow : Window
 		if (logo != null)
 		{
 			sidebarBrandLogo.Source = logo;
+			sidebarBrandLogo.ToolTip = barangayName;
 			sidebarBrandLogo.Visibility = Visibility.Visible;
 			((UIElement)(object)sidebarBrandIcon).Visibility = Visibility.Collapsed;
 		}
@@ -274,6 +282,7 @@ public partial class MainWindow : Window
 		{
 			sidebarBrandLogo.Source = null;
 			sidebarBrandLogo.Visibility = Visibility.Collapsed;
+			sidebarBrandIcon.ToolTip = barangayName;
 			((UIElement)(object)sidebarBrandIcon).Visibility = Visibility.Visible;
 		}
 	}
@@ -396,18 +405,87 @@ public partial class MainWindow : Window
 		}
 	}
 
-	private void BtnToggleSidebar_Click(object sender, RoutedEventArgs e)
+	public void ToggleSidebar()
 	{
 		SetSidebarState(!_isSidebarCollapsed);
 	}
 
+	private void BtnToggleSidebar_Click(object sender, RoutedEventArgs e)
+	{
+		ToggleSidebar();
+	}
+
 	private void SetSidebarState(bool collapse)
 	{
-		_isSidebarCollapsed = false; // Always keep sidebar expanded with labels visible
-		if (!string.Equals(_currentRoute, "Home", StringComparison.OrdinalIgnoreCase))
+		_isSidebarCollapsed = collapse;
+		if (string.Equals(_currentRoute, "Home", StringComparison.OrdinalIgnoreCase))
+		{
+			return;
+		}
+
+		btnToggleSidebar.ToolTip = collapse ? "Expand Sidebar (Ctrl+B)" : "Collapse Sidebar (Ctrl+B)";
+
+		double targetWidth = collapse ? CollapsedSidebarWidth : ExpandedSidebarWidth;
+		double currentWidth = SidebarColumn.ActualWidth > 0 ? SidebarColumn.ActualWidth : (_isSidebarCollapsed ? CollapsedSidebarWidth : ExpandedSidebarWidth);
+
+		if (!collapse)
+		{
+			UpdateSidebarVisuals(true);
+		}
+
+		GridLengthAnimation anim = new GridLengthAnimation
+		{
+			From = new GridLength(currentWidth),
+			To = new GridLength(targetWidth),
+			Duration = TimeSpan.FromMilliseconds(180.0),
+			EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+		};
+
+		anim.Completed += (s, args) =>
 		{
 			SidebarColumn.BeginAnimation(ColumnDefinition.WidthProperty, null);
-			SidebarColumn.Width = new GridLength(180.0);
+			SidebarColumn.Width = new GridLength(targetWidth);
+			if (collapse)
+			{
+				UpdateSidebarVisuals(false);
+			}
+		};
+
+		SidebarColumn.BeginAnimation(ColumnDefinition.WidthProperty, anim);
+	}
+
+	private void UpdateSidebarVisuals(bool isExpanded)
+	{
+		Visibility vis = isExpanded ? Visibility.Visible : Visibility.Collapsed;
+		if (sidebarBrandTextPanel != null)
+		{
+			sidebarBrandTextPanel.Visibility = vis;
+		}
+		if (sidebarUserInfoPanel != null)
+		{
+			sidebarUserInfoPanel.Visibility = vis;
+		}
+
+		if (isExpanded)
+		{
+			ApplyRoleVisibility();
+		}
+		else
+		{
+			if (navGroupCommunity != null) navGroupCommunity.Visibility = Visibility.Collapsed;
+			if (navGroupFinance != null) navGroupFinance.Visibility = Visibility.Collapsed;
+			if (navGroupAdmin != null) navGroupAdmin.Visibility = Visibility.Collapsed;
+		}
+
+		if (sidebarNavStack != null)
+		{
+			foreach (var child in sidebarNavStack.Children)
+			{
+				if (child is RadioButton rb && rb.Content is StackPanel sp && sp.Children.Count > 1)
+				{
+					sp.Children[1].Visibility = vis;
+				}
+			}
 		}
 	}
 
@@ -490,9 +568,15 @@ public partial class MainWindow : Window
 		TopBarContainer.Visibility = Visibility.Visible;
 		BottomStatusBar.Visibility = Visibility.Visible;
 		SidebarColumn.BeginAnimation(ColumnDefinition.WidthProperty, null);
-		SidebarColumn.Width = new GridLength(hideSidebar ? 0.0 : 180.0);
-		TopBarRow.Height = new GridLength(36.0);
-		StatusBarRow.Height = new GridLength(22.0);
+		double targetWidth = hideSidebar ? 0.0 : (_isSidebarCollapsed ? CollapsedSidebarWidth : ExpandedSidebarWidth);
+		SidebarColumn.Width = new GridLength(targetWidth);
+		if (!hideSidebar)
+		{
+			UpdateSidebarVisuals(!_isSidebarCollapsed);
+			btnToggleSidebar.ToolTip = _isSidebarCollapsed ? "Expand Sidebar (Ctrl+B)" : "Collapse Sidebar (Ctrl+B)";
+		}
+		TopBarRow.Height = new GridLength(44.0);
+		StatusBarRow.Height = new GridLength(24.0);
 	}
 
 	private void UpdateBreadcrumb(string route)
@@ -583,8 +667,8 @@ public partial class MainWindow : Window
 	{
 		TopBarContainer.Visibility = Visibility.Visible;
 		BottomStatusBar.Visibility = Visibility.Visible;
-		TopBarRow.Height = new GridLength(36.0);
-		StatusBarRow.Height = new GridLength(22.0);
+		TopBarRow.Height = new GridLength(44.0);
+		StatusBarRow.Height = new GridLength(24.0);
 	}
 
 	private void SyncNavigationSelection(string route)
@@ -613,6 +697,7 @@ public partial class MainWindow : Window
 			"ResidentPayments" => navPayments, 
 			"Ayuda" => navAyuda, 
 			"Collections" => navCollections, 
+			"Reports" => navReports,
 			"Officials" => navOfficials, 
 			"StaffUsers" => navStaff, 
 			"RolePermissions" => navRoles, 
@@ -652,17 +737,17 @@ public partial class MainWindow : Window
 			"Households" => "Households", 
 			"ResidentCategories" => "Tags & Categories", 
 			"DeceasedRegistry" => "Deceased Registry", 
-			"Clearances" => "Clearances Queue", 
+			"Clearances" => "Clearances & Permits", 
 			"Permits" => "Permits Queue", 
 			"ResidentCases" => "Blotter Cases", 
 			"TanodPatrol" => "Tanod Patrol",
 			"EmergencyContacts" => "Emergency Contacts",
 			"Meetings" => "Meetings & Resolutions",
 			"FacilityBooking" => "Facility Booking",
-			"ResidentPayments" => "Payments", 
+			"ResidentPayments" => "Resident Payments", 
 			"Ayuda" => "Ayuda Assistance", 
-			"Collections" => "Finance Operations", 
-			"Reports" => "Module Reports", 
+			"Collections" => "Expenses & Procurement", 
+			"Reports" => "Reports & Analytics", 
 			"Officials" => "Barangay Officials", 
 			"StaffUsers" => "Staff & Users", 
 			"RolePermissions" => "Roles & Permissions", 

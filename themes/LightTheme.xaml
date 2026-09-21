@@ -15,8 +15,8 @@
 
     <!-- Text Colors -->
     <SolidColorBrush x:Key="ThemeTextPrimaryBrush" Color="#0F172A" />
-    <SolidColorBrush x:Key="ThemeTextSecondaryBrush" Color="#475569" />
-    <SolidColorBrush x:Key="ThemeTextMutedBrush" Color="#94A3B8" />
+    <SolidColorBrush x:Key="ThemeTextSecondaryBrush" Color="#334155" />
+    <SolidColorBrush x:Key="ThemeTextMutedBrush" Color="#64748B" />
     <SolidColorBrush x:Key="ThemeTextInverseBrush" Color="#FFFFFF" />
 
     <!-- Sidebar -->
@@ -42,7 +42,7 @@
     <SolidColorBrush x:Key="ThemeInputBgBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="ThemeInputBorderBrush" Color="#E2E8F0" />
     <SolidColorBrush x:Key="ThemeInputTextBrush" Color="#0F172A" />
-    <SolidColorBrush x:Key="ThemeInputPlaceholderBrush" Color="#94A3B8" />
+    <SolidColorBrush x:Key="ThemeInputPlaceholderBrush" Color="#64748B" />
 
     <!-- DataGrid -->
     <SolidColorBrush x:Key="ThemeGridHeaderBgBrush" Color="#0F172A" />

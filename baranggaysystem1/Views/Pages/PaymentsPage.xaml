@@ -4,8 +4,6 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}">
       <Grid>
@@ -59,33 +57,46 @@
         </Button>
       </Grid>
     </Border>
-    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" Margin="20,14,20,0" CornerRadius="8" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" ClipToBounds="True">
+    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" Margin="20,14,20,16" CornerRadius="8" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" ClipToBounds="True">
       <Grid>
-        <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource StyledDataGridRowStyle}" AutoGenerateColumns="False" IsReadOnly="True" SelectionChanged="MainGrid_SelectionChanged" />
+        <!-- Hidden elements preserved for code-behind compatibility -->
+        <StackPanel Visibility="Collapsed">
+          <Border Name="contextActionBar">
+            <StackPanel>
+              <TextBlock Name="selectedRecordLabel" />
+              <Button Name="btnPrintOR" Click="BtnPrintOR_Click" />
+              <Button Name="btnViewDetails" Click="BtnView_Click" />
+              <Button Name="btnVoid" Click="BtnVoid_Click" />
+            </StackPanel>
+          </Border>
+          <TextBlock Name="footerCountLabel" />
+          <TextBlock Name="ledgerSummaryLabel" />
+        </StackPanel>
+        <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource StyledDataGridRowStyle}" AutoGenerateColumns="False" IsReadOnly="True" SelectionChanged="MainGrid_SelectionChanged" MouseDoubleClick="MainGrid_DoubleClick">
+          <DataGrid.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Print Official Receipt" Click="BtnPrintOR_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="Print" FontSize="12" Foreground="#10B981" />
+                </MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="View Payment Details" Click="BtnView_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="Eye" FontSize="12" Foreground="{DynamicResource AccentBlueBrush}" />
+                </MenuItem.Icon>
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="Void Payment" Click="BtnVoid_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="Ban" FontSize="12" Foreground="#EF4444" />
+                </MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </DataGrid.ContextMenu>
+        </DataGrid>
         <StackPanel Name="emptyState" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
           <fa:IconBlock Icon="CreditCard" FontSize="48" Foreground="{DynamicResource ThemeTextMutedBrush}" HorizontalAlignment="Center" Margin="0,0,0,12" />
           <TextBlock Name="emptyLabel" Text="No payment history found for current filters." Style="{StaticResource SubtitleTextStyle}" HorizontalAlignment="Center" />
-        </StackPanel>
-      </Grid>
-    </Border>
-    <Border Name="contextActionBar" Grid.Row="3" Visibility="Collapsed" Background="{DynamicResource ThemeCardHoverBrush}" Margin="20,10,20,0" Padding="16,10" CornerRadius="8" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
-      <Grid>
-        <StackPanel Orientation="Horizontal">
-          <fa:IconBlock Icon="Clock" Foreground="#22C55E" FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0" />
-          <TextBlock Text="Actions for:" VerticalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
-          <TextBlock Name="selectedRecordLabel" Text="OR-000001" VerticalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="6,0,20,0" />
-          <Button Name="btnPrintOR" Content="Print Receipt" Style="{StaticResource ContextualActionButtonStyle}" Margin="0,0,8,0" Click="BtnPrintOR_Click" />
-          <Button Name="btnViewDetails" Content="View Details" Style="{StaticResource ActionButtonStyle}" Margin="0,0,8,0" Click="BtnView_Click" />
-          <Button Name="btnVoid" Content="Void Payment" Style="{StaticResource ActionButtonStyle}" Click="BtnVoid_Click" />
-        </StackPanel>
-        <Button HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource GhostButtonStyle}" Content="Close" Padding="8,4" Foreground="{DynamicResource ThemeTextMutedBrush}" Click="BtnClearSelection_Click" />
-      </Grid>
-    </Border>
-    <Border Grid.Row="4" Margin="20,10,20,14" Background="Transparent" Height="38">
-      <Grid>
-        <TextBlock Name="footerCountLabel" Text="0 records loaded." Style="{StaticResource SmallTextStyle}" VerticalAlignment="Center" />
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-          <TextBlock Name="ledgerSummaryLabel" Text="Valid collection: PHP 0.00  ·  0 void" Style="{StaticResource SmallTextStyle}" FontWeight="SemiBold" />
         </StackPanel>
       </Grid>
     </Border>

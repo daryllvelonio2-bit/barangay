@@ -8,7 +8,6 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
     <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}">
@@ -77,15 +76,47 @@
       </Grid>
     </Border>
 
-    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" Margin="20,14,20,0" CornerRadius="8"
+    <Border Grid.Row="2" Background="{DynamicResource ThemeCardBrush}" Margin="20,14,20,16" CornerRadius="8"
             BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1" ClipToBounds="True">
       <Grid>
+        <!-- Hidden elements preserved for code-behind compatibility -->
+        <StackPanel Visibility="Collapsed">
+          <Border Name="contextActionBar">
+            <StackPanel>
+              <TextBlock Name="selectedLabel" />
+              <Button Name="btnEdit" Click="BtnEdit_Click" />
+              <Button Name="btnCopyPhone" Click="BtnCopyPhone_Click" />
+              <Button Name="btnActiveState" Click="BtnActiveState_Click" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
         <DataGrid Name="mainGrid" Style="{StaticResource StyledDataGridStyle}"
                   ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}"
                   RowStyle="{StaticResource StyledDataGridRowStyle}"
                   AutoGenerateColumns="False" IsReadOnly="True"
                   SelectionChanged="MainGrid_SelectionChanged"
-                  MouseDoubleClick="MainGrid_DoubleClick" />
+                  MouseDoubleClick="MainGrid_DoubleClick">
+          <DataGrid.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Edit Contact" Click="BtnEdit_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="Edit" FontSize="12" Foreground="{DynamicResource AccentBlueBrush}" />
+                </MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="Copy Phone Number" Click="BtnCopyPhone_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="Copy" FontSize="12" Foreground="#10B981" />
+                </MenuItem.Icon>
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="Deactivate / Change Status" Click="BtnActiveState_Click">
+                <MenuItem.Icon>
+                  <fa:IconBlock Icon="PowerOff" FontSize="12" Foreground="#EF4444" />
+                </MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </DataGrid.ContextMenu>
+        </DataGrid>
         <StackPanel Name="emptyState" VerticalAlignment="Center" HorizontalAlignment="Center"
                     Visibility="Collapsed">
           <fa:IconBlock Icon="PhoneAlt" FontSize="48" Foreground="{DynamicResource ThemeTextMutedBrush}"
@@ -96,25 +127,5 @@
       </Grid>
     </Border>
 
-    <Border Name="contextActionBar" Grid.Row="3" Visibility="Collapsed"
-            Background="{DynamicResource ThemeCardHoverBrush}" Margin="20,10,20,20"
-            Padding="16,10" CornerRadius="8"
-            BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
-      <StackPanel Orientation="Horizontal">
-        <fa:IconBlock Icon="CheckCircle" Foreground="#F87171" FontSize="14"
-                      VerticalAlignment="Center" Margin="0,0,10,0" />
-        <TextBlock Text="Selected: " VerticalAlignment="Center" FontWeight="Bold"
-                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
-        <TextBlock Name="selectedLabel" Text="" VerticalAlignment="Center" FontWeight="Bold"
-                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,20,0" />
-        <Button Name="btnEdit" Content="Edit" Style="{StaticResource ContextualActionButtonStyle}"
-                Margin="0,0,8,0" Click="BtnEdit_Click" />
-        <Button Name="btnCopyPhone" Content="Copy Phone" Style="{StaticResource ContextualActionButtonStyle}"
-                Margin="0,0,8,0" Click="BtnCopyPhone_Click" />
-        <Button Name="btnActiveState" Content="Deactivate" Style="{StaticResource ActionButtonStyle}"
-                ToolTip="Keeps the contact and its audit history."
-                Click="BtnActiveState_Click" />
-      </StackPanel>
-    </Border>
   </Grid>
 </UserControl>

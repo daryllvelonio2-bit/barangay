@@ -151,48 +151,51 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
-    <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}" Padding="14,5,14,5">
+    <Border Grid.Row="0" Style="{StaticResource PageHeaderStyle}" Padding="22,10,22,8">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-          <StackPanel Orientation="Horizontal">
-            <fa:IconBlock Icon="Certificate" Foreground="#FBBF24" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <TextBlock Text="Clearance &amp; Certification Queue" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center" />
-            <TextBlock Name="recordCountLabel" Text="" Style="{StaticResource SubtitleTextStyle}" VerticalAlignment="Center" Margin="8,0,0,0" FontSize="10" />
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Margin="21,2,0,0">
-            <TextBlock Text="Queue:" FontSize="9" Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,3,0" />
-            <TextBlock Name="visibleQueueMetric" Text="0" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
-            <TextBlock Text="Pending:" FontSize="9" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,3,0" />
-            <TextBlock Name="pendingQueueMetric" Text="0" FontSize="11" FontWeight="Bold" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,10,0" />
-            <TextBlock Text="Released:" FontSize="9" Foreground="#34D399" VerticalAlignment="Center" Margin="0,0,3,0" />
-            <TextBlock Name="releasedQueueMetric" Text="0" FontSize="11" FontWeight="Bold" Foreground="#34D399" VerticalAlignment="Center" Margin="0,0,10,0" />
-            <TextBlock Text="Follow-up:" FontSize="9" Foreground="#DC2626" VerticalAlignment="Center" Margin="0,0,3,0" />
-            <TextBlock Name="attentionQueueMetric" Text="0" FontSize="11" FontWeight="Bold" Foreground="#DC2626" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+          <Border Width="38" Height="38" CornerRadius="10" Background="#33FBBF24" Margin="0,0,12,0">
+            <fa:IconBlock Icon="Stamp" Foreground="#FBBF24" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <StackPanel VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="Clearances &amp; Permits" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontFamily="{StaticResource SegoeUi}" VerticalAlignment="Center" />
+              <TextBlock Name="recordCountLabel" Text="" Style="{StaticResource SubtitleTextStyle}" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="12" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+              <TextBlock Text="Queue:" FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,4,0" />
+              <TextBlock Name="visibleQueueMetric" Text="0" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0" />
+              <TextBlock Text="Pending:" FontSize="11" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,4,0" />
+              <TextBlock Name="pendingQueueMetric" Text="0" FontSize="11.5" FontWeight="Bold" Foreground="#FBBF24" VerticalAlignment="Center" Margin="0,0,12,0" />
+              <TextBlock Text="Released:" FontSize="11" Foreground="#34D399" VerticalAlignment="Center" Margin="0,0,4,0" />
+              <TextBlock Name="releasedQueueMetric" Text="0" FontSize="11.5" FontWeight="Bold" Foreground="#34D399" VerticalAlignment="Center" Margin="0,0,12,0" />
+              <TextBlock Text="Attention:" FontSize="11" Foreground="#DC2626" VerticalAlignment="Center" Margin="0,0,4,0" />
+              <TextBlock Name="attentionQueueMetric" Text="0" FontSize="11.5" FontWeight="Bold" Foreground="#DC2626" VerticalAlignment="Center" />
+            </StackPanel>
           </StackPanel>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-          <Button Style="{StaticResource GhostButtonStyle}" Margin="0,0,4,0" Height="26" Padding="6,0" Click="BtnVerify_Click">
+          <Button Style="{StaticResource GhostButtonStyle}" Margin="0,0,6,0" Height="34" Padding="10,0" Click="BtnVerify_Click">
             <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="ShieldAlt" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="Verify" VerticalAlignment="Center" FontSize="10" />
+              <fa:IconBlock Icon="ShieldAlt" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+              <TextBlock Text="Verify Document" VerticalAlignment="Center" FontSize="12" />
             </StackPanel>
           </Button>
-          <Button Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,4,0" Height="26" Padding="6,0">
+          <Button Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,0" Height="34" Padding="10,0">
             <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Download" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="Export" VerticalAlignment="Center" FontSize="10" />
+              <fa:IconBlock Icon="Download" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+              <TextBlock Text="Export" VerticalAlignment="Center" FontSize="12" />
             </StackPanel>
           </Button>
-          <Button Style="{StaticResource PrimaryButtonStyle}" Height="26" Padding="8,0" Click="BtnAdd_Click">
+          <Button Style="{StaticResource PrimaryButtonStyle}" Height="34" Padding="12,0" Click="BtnAdd_Click">
             <StackPanel Orientation="Horizontal">
-              <fa:IconBlock Icon="Plus" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center" />
-              <TextBlock Text="New Request" VerticalAlignment="Center" Foreground="#FFFFFFFF" FontSize="10" />
+              <fa:IconBlock Icon="Plus" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+              <TextBlock Text="New Request" VerticalAlignment="Center" Foreground="#FFFFFFFF" FontSize="12" />
             </StackPanel>
           </Button>
         </StackPanel>
@@ -268,7 +271,7 @@
           </Grid>
         </Border>
         <Grid Row="1">
-          <DataGrid Name="mainGrid" Margin="10,8,10,10" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource QueueDataGridRowStyle}" CellStyle="{StaticResource QueueDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="78" HeadersVisibility="Column" CanUserAddRows="False" SelectionChanged="MainGrid_SelectionChanged">
+          <DataGrid Name="mainGrid" Margin="10,8,10,10" Style="{StaticResource StyledDataGridStyle}" ColumnHeaderStyle="{StaticResource StyledDataGridColumnHeaderStyle}" RowStyle="{StaticResource QueueDataGridRowStyle}" CellStyle="{StaticResource QueueDataGridCellStyle}" AutoGenerateColumns="False" IsReadOnly="True" AlternationCount="2" RowHeight="78" HeadersVisibility="Column" CanUserAddRows="False" SelectionChanged="MainGrid_SelectionChanged" MouseDoubleClick="MainGrid_DoubleClick">
             <DataGrid.ContextMenu>
               <ContextMenu>
                 <MenuItem Header="Release and Print" Click="BtnIssue_Click">
@@ -365,64 +368,56 @@
         </Grid>
       </Grid>
     </Border>
-    <Border Name="contextActionBar" Grid.Row="3" Visibility="Collapsed" Margin="20,12,20,0" Padding="18,14" Style="{StaticResource QueueSurfaceCardStyle}">
+    <Border Grid.Row="3" Margin="20,8,20,12" Padding="16,10" Style="{StaticResource QueueSurfaceCardStyle}">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-          <StackPanel Orientation="Horizontal">
-            <fa:IconBlock Icon="Bolt" Foreground="#FF4F46E5" FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0" />
-            <TextBlock Text="Queue actions for" VerticalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
-            <TextBlock Name="selectedRecordLabel" Text="REQ-000001" VerticalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="6,0,0,0" />
-          </StackPanel>
-          <TextBlock Name="selectedRecordMetaLabel" Text="Select a queue record to manage release or cancellation." Style="{StaticResource SmallTextStyle}" Margin="24,6,0,0" />
-          <TextBlock Name="selectedVerificationLabel" Text="Verification details appear here once a request is selected." Style="{StaticResource SmallTextStyle}" Margin="24,4,0,0" Foreground="{DynamicResource ThemeTextSecondaryBrush}" TextWrapping="Wrap" />
-          <WrapPanel Margin="0,14,0,0">
-            <Button Name="btnRelease" Style="{StaticResource ContextualActionButtonStyle}" Margin="0,0,8,8" Click="BtnIssue_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Stamp" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-                <TextBlock Name="btnReleaseLabel" Text="Release and Print" VerticalAlignment="Center" Foreground="#FFFFFFFF" />
-              </StackPanel>
-            </Button>
-            <Button Name="btnPreview" Style="{StaticResource ActionButtonStyle}" Margin="0,0,8,8" Click="BtnPrintPreview_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Eye" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-                <TextBlock Text="Print Preview" VerticalAlignment="Center" />
-              </StackPanel>
-            </Button>
-            <Button Name="btnCancel" Style="{StaticResource ActionButtonStyle}" Margin="0,0,8,8" Click="BtnCancel_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Times" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-                <TextBlock Text="Cancel Request" VerticalAlignment="Center" />
-              </StackPanel>
-            </Button>
-            <Button Name="btnVerifySelected" Style="{StaticResource GhostButtonStyle}" Margin="0,0,8,8" Click="BtnVerifySelected_Click">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Qrcode" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
-                <TextBlock Text="Verification &amp; QR" VerticalAlignment="Center" />
-              </StackPanel>
-            </Button>
-          </WrapPanel>
+        
+        <!-- Left: Status and Selected Record Summary -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Name="footerCountLabel" Text="No records loaded." FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center" />
+          <Border Name="contextActionBar" Visibility="Collapsed" Margin="12,0,0,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <TextBlock Text="•" Margin="0,0,8,0" Foreground="{DynamicResource ThemeTextMutedBrush}" VerticalAlignment="Center" />
+              <fa:IconBlock Icon="FileContract" Foreground="{DynamicResource ThemeAccentBrush}" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0" />
+              <TextBlock Name="selectedRecordLabel" Text="REQ-000001" VerticalAlignment="Center" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+              <TextBlock Name="selectedRecordMetaLabel" Text="" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" Margin="6,0,0,0" />
+              <TextBlock Name="selectedVerificationLabel" Visibility="Collapsed" />
+              <Button Style="{StaticResource GhostButtonStyle}" Padding="4" Foreground="{DynamicResource ThemeTextMutedBrush}" Click="BtnClearSelection_Click" Margin="6,0,0,0" ToolTip="Deselect request">
+                <fa:IconBlock Icon="Times" FontSize="11" />
+              </Button>
+            </StackPanel>
+          </Border>
         </StackPanel>
-        <Button Grid.Column="1" Style="{StaticResource GhostButtonStyle}" Padding="4" Foreground="{DynamicResource ThemeTextMutedBrush}" Click="BtnClearSelection_Click">
-          <fa:IconBlock Icon="Times" FontSize="12" />
-        </Button>
-      </Grid>
-    </Border>
-    <Border Grid.Row="4" Margin="20,12,20,16" Padding="16,12" Style="{StaticResource QueueSurfaceCardStyle}">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <StackPanel>
-          <TextBlock Name="footerCountLabel" Text="No records loaded." Style="{StaticResource SmallTextStyle}" FontWeight="SemiBold" />
-          <TextBlock Text="Tip: select a queue row to reveal release and cancellation actions." Style="{StaticResource SmallTextStyle}" Margin="0,3,0,0" />
-        </StackPanel>
+
+        <!-- Right: Actions for Selected Request -->
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-          <TextBlock Text="Queue sync stays aligned with the local MySQL certificate records" Style="{StaticResource SmallTextStyle}" Opacity="0.7" />
+          <Button Name="btnVerifySelected" Style="{StaticResource SecondaryButtonStyle}" Height="32" Padding="10,0" FontSize="11.5" Margin="0,0,6,0" Click="BtnVerifySelected_Click" ToolTip="Check document verification and QR details">
+            <StackPanel Orientation="Horizontal">
+              <fa:IconBlock Icon="Qrcode" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+              <TextBlock Text="Verification &amp; QR" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Button Name="btnPreview" Style="{StaticResource SecondaryButtonStyle}" Height="32" Padding="10,0" FontSize="11.5" Margin="0,0,6,0" Click="BtnPrintPreview_Click" ToolTip="Preview printable certificate">
+            <StackPanel Orientation="Horizontal">
+              <fa:IconBlock Icon="Eye" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+              <TextBlock Text="Print Preview" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Button Name="btnRelease" Style="{StaticResource PrimaryButtonStyle}" Height="32" Padding="12,0" FontSize="11.5" Margin="0,0,6,0" Click="BtnIssue_Click">
+            <StackPanel Orientation="Horizontal">
+              <fa:IconBlock Icon="Stamp" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+              <TextBlock Name="btnReleaseLabel" Text="Release and Print" VerticalAlignment="Center" Foreground="#FFFFFF" />
+            </StackPanel>
+          </Button>
+          <Button Name="btnCancel" Style="{StaticResource DangerButtonStyle}" Height="32" Padding="10,0" FontSize="11.5" Click="BtnCancel_Click">
+            <StackPanel Orientation="Horizontal">
+              <fa:IconBlock Icon="Times" FontSize="11" Margin="0,0,5,0" VerticalAlignment="Center" />
+              <TextBlock Text="Cancel" VerticalAlignment="Center" Foreground="#FFFFFF" />
+            </StackPanel>
+          </Button>
         </StackPanel>
       </Grid>
     </Border>

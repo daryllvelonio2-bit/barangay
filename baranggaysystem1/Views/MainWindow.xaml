@@ -28,10 +28,10 @@
       <ColumnDefinition Name="SidebarColumn" Width="200" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
-    <Border Name="SidebarRoot" Grid.Column="0" Background="{DynamicResource ThemeSidebarBgBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="0,0,1,0">
+    <Border Name="SidebarRoot" Grid.Column="0" Background="{DynamicResource ThemeSidebarBgBrush}" BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="0,0,1,0" ClipToBounds="True">
       <DockPanel>
-        <Border DockPanel.Dock="Top" Padding="12,14,12,14">
-          <StackPanel Orientation="Horizontal">
+        <Border DockPanel.Dock="Top" Height="44" Padding="13,5,13,5">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
             <Border Width="34" Height="34" CornerRadius="10" MinWidth="34">
               <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -44,14 +44,14 @@
                 <fa:IconBlock Name="sidebarBrandIcon" Icon="University" Foreground="#FFFFFFFF" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Grid>
             </Border>
-            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+            <StackPanel Name="sidebarBrandTextPanel" Margin="10,0,0,0" VerticalAlignment="Center">
               <TextBlock Text="PORTAL" FontSize="8" FontWeight="Bold" Foreground="#4B6A94" FontFamily="{StaticResource TrebuchetMs}" />
               <TextBlock Name="sidebarBarangayName" Text="SAN JOSE" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" FontFamily="{StaticResource CenturyGothic}" />
             </StackPanel>
           </StackPanel>
         </Border>
-        <Border DockPanel.Dock="Bottom" Padding="12,10" BorderBrush="{StaticResource SidebarDividerBrush}" BorderThickness="0,1,0,0">
-          <Grid>
+        <Border DockPanel.Dock="Bottom" Height="44" Padding="15,7,15,7" BorderBrush="{StaticResource SidebarDividerBrush}" BorderThickness="0,1,0,0">
+          <Grid VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="30" />
               <ColumnDefinition Width="*" />
@@ -65,27 +65,27 @@
               </Border.Background>
               <TextBlock Name="sidebarUserInitial" Text="A" FontSize="11" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Border>
-            <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
+            <StackPanel Name="sidebarUserInfoPanel" Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
               <TextBlock Name="sidebarUsername" Text="Admin User" Foreground="#FFFFFFFF" FontSize="11" FontWeight="Bold" FontFamily="{StaticResource TrebuchetMs}" />
               <TextBlock Name="sidebarRole" Text="Administrator" Foreground="{StaticResource SidebarGroupBrush}" FontSize="10" FontFamily="{StaticResource TrebuchetMs}" Margin="0,1,0,0" />
             </StackPanel>
           </Grid>
         </Border>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-          <StackPanel Margin="0,8,0,8">
-            <RadioButton Name="navHome" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Home" Checked="NavItem_Checked" ToolTip="Home">
+        <ScrollViewer Name="sidebarScrollViewer" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Name="sidebarNavStack" Margin="0,8,0,8">
+            <RadioButton Name="navHome" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Home" Checked="NavItem_Checked" ToolTip="Home (Operations Board)">
               <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Home" FontSize="14" Width="20" HorizontalAlignment="Center" />
+                <fa:IconBlock Icon="ThLarge" FontSize="14" Width="20" HorizontalAlignment="Center" />
                 <TextBlock Text="Home" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <RadioButton Name="navDashboard" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Dashboard" Checked="NavItem_Checked" ToolTip="Dashboard">
+            <RadioButton Name="navDashboard" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Dashboard" Checked="NavItem_Checked" ToolTip="Dashboard &amp; Work Queue">
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="ChartPie" FontSize="14" Width="20" HorizontalAlignment="Center" />
                 <TextBlock Text="Dashboard" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <RadioButton Name="navStatistics" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Statistics" Checked="NavItem_Checked" ToolTip="Statistics">
+            <RadioButton Name="navStatistics" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Statistics" Checked="NavItem_Checked" ToolTip="Demographics &amp; Stats">
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="ChartBar" FontSize="14" Width="20" HorizontalAlignment="Center" />
                 <TextBlock Text="Statistics" Style="{StaticResource SidebarNavLabelStyle}" />
@@ -97,14 +97,15 @@
                 <TextBlock Text="Announcements &amp; Projects" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <TextBlock Name="navGroupCommunity" Text="COMMUNITY RECORDS" Style="{StaticResource NavGroupStyle}" />
+
+            <TextBlock Name="navGroupCommunity" Text="CITIZEN SERVICES" Style="{StaticResource NavGroupStyle}" />
             <RadioButton Name="navResidents" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentWorkspace" Checked="NavItem_Checked" ToolTip="Resident Records">
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="Users" FontSize="14" Width="20" HorizontalAlignment="Center" />
                 <TextBlock Text="Resident Records" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <!-- Solo Parent, Youth, Indigent, Deceased removed - accessible via Resident Records tabs -->
+            <!-- Sub-registries accessible via Resident Records tabs -->
             <RadioButton Name="navSoloParents" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentSoloParents" Checked="NavItem_Checked" Visibility="Collapsed" />
             <RadioButton Name="navYouth" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentYouth" Checked="NavItem_Checked" Visibility="Collapsed" />
             <RadioButton Name="navIndigent" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentIndigent" Checked="NavItem_Checked" Visibility="Collapsed" />
@@ -115,26 +116,13 @@
                 <TextBlock Text="Households" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <RadioButton Name="navCategories" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentCategories" Checked="NavItem_Checked" ToolTip="Tags &amp; Categories">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="Tags" FontSize="14" Width="20" HorizontalAlignment="Center" />
-                <TextBlock Text="Tags &amp; Categories" Style="{StaticResource SidebarNavLabelStyle}" />
-              </StackPanel>
-            </RadioButton>
-            <TextBlock Name="navGroupServices" Text="SERVICES &amp; DOCUMENTS" Style="{StaticResource NavGroupStyle}" />
-            <RadioButton Name="navClearances" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Clearances" Checked="NavItem_Checked" ToolTip="Clearances">
+            <RadioButton Name="navClearances" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Clearances" Checked="NavItem_Checked" ToolTip="Clearances &amp; Permits">
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="Stamp" FontSize="14" Width="20" HorizontalAlignment="Center" />
-                <TextBlock Text="Clearances" Style="{StaticResource SidebarNavLabelStyle}" />
+                <TextBlock Text="Clearances &amp; Permits" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <RadioButton Name="navPermits" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Permits" Checked="NavItem_Checked" ToolTip="Permits">
-              <StackPanel Orientation="Horizontal">
-                <fa:IconBlock Icon="ShieldAlt" FontSize="14" Width="20" HorizontalAlignment="Center" />
-                <TextBlock Text="Permits" Style="{StaticResource SidebarNavLabelStyle}" />
-              </StackPanel>
-            </RadioButton>
-            <TextBlock Name="navGroupBlotter" Text="BLOTTER &amp; CASES" Style="{StaticResource NavGroupStyle}" />
+            <RadioButton Name="navPermits" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Permits" Checked="NavItem_Checked" Visibility="Collapsed" />
             <RadioButton Name="navBlotter" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentCases" Checked="NavItem_Checked" ToolTip="Blotter Cases">
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="Gavel" FontSize="14" Width="20" HorizontalAlignment="Center" />
@@ -153,11 +141,18 @@
                 <TextBlock Text="Emergency Contacts" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <TextBlock Name="navGroupFinance" Text="FINANCE" Style="{StaticResource NavGroupStyle}" />
-            <RadioButton Name="navPayments" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentPayments" Checked="NavItem_Checked" ToolTip="Payments">
+            <RadioButton Name="navCategories" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentCategories" Checked="NavItem_Checked" ToolTip="Tags &amp; Categories">
+              <StackPanel Orientation="Horizontal">
+                <fa:IconBlock Icon="Tags" FontSize="14" Width="20" HorizontalAlignment="Center" />
+                <TextBlock Text="Tags &amp; Categories" Style="{StaticResource SidebarNavLabelStyle}" />
+              </StackPanel>
+            </RadioButton>
+
+            <TextBlock Name="navGroupFinance" Text="FINANCE &amp; PROPERTY" Style="{StaticResource NavGroupStyle}" />
+            <RadioButton Name="navPayments" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="ResidentPayments" Checked="NavItem_Checked" ToolTip="Resident Payments">
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="MoneyBill" FontSize="14" Width="20" HorizontalAlignment="Center" />
-                <TextBlock Text="Payments" Style="{StaticResource SidebarNavLabelStyle}" />
+                <TextBlock Text="Resident Payments" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
             <RadioButton Name="navAyuda" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Ayuda" Checked="NavItem_Checked" ToolTip="Ayuda Assistance">
@@ -166,12 +161,13 @@
                 <TextBlock Text="Ayuda Assistance" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
-            <RadioButton Name="navCollections" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Collections" Checked="NavItem_Checked" ToolTip="Finance Operations">
+            <RadioButton Name="navCollections" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Collections" Checked="NavItem_Checked" ToolTip="Expenses &amp; Procurement">
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="BoxOpen" FontSize="14" Width="20" HorizontalAlignment="Center" />
-                <TextBlock Text="Finance Operations" Style="{StaticResource SidebarNavLabelStyle}" />
+                <TextBlock Text="Expenses &amp; Procurement" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
+
             <TextBlock Name="navGroupAdmin" Text="ADMINISTRATION" Style="{StaticResource NavGroupStyle}" />
             <RadioButton Name="navMeetings" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Meetings" Checked="NavItem_Checked" ToolTip="Meetings">
               <StackPanel Orientation="Horizontal">
@@ -183,6 +179,12 @@
               <StackPanel Orientation="Horizontal">
                 <fa:IconBlock Icon="Building" FontSize="14" Width="20" HorizontalAlignment="Center" />
                 <TextBlock Text="Facility Booking" Style="{StaticResource SidebarNavLabelStyle}" />
+              </StackPanel>
+            </RadioButton>
+            <RadioButton Name="navReports" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Reports" Checked="NavItem_Checked" ToolTip="Reports &amp; Analytics">
+              <StackPanel Orientation="Horizontal">
+                <fa:IconBlock Icon="ChartLine" FontSize="14" Width="20" HorizontalAlignment="Center" />
+                <TextBlock Text="Reports &amp; Analytics" Style="{StaticResource SidebarNavLabelStyle}" />
               </StackPanel>
             </RadioButton>
             <RadioButton Name="navOfficials" GroupName="SidebarNav" Style="{StaticResource NavItemStyle}" Tag="Officials" Checked="NavItem_Checked" ToolTip="Barangay Officials">
@@ -232,38 +234,38 @@
         <RowDefinition Name="StatusBarRow" Height="24" />
       </Grid.RowDefinitions>
       <Border Name="TopBarContainer" Grid.Row="0" Background="{DynamicResource ThemeTopBarBgBrush}" BorderBrush="{DynamicResource ThemeTopBarBorderBrush}" BorderThickness="0,0,0,1">
-        <Grid Margin="12,4,16,4">
+        <Grid Margin="12,0,16,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
-          <Button Name="btnToggleSidebar" Grid.Column="0" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" Margin="0,0,10,0" Click="BtnToggleSidebar_Click" ToolTip="Toggle Sidebar">
+          <Button Name="btnToggleSidebar" Grid.Column="0" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" Margin="0,0,10,0" VerticalAlignment="Center" Click="BtnToggleSidebar_Click" ToolTip="Collapse Sidebar (Ctrl+B)">
             <fa:IconBlock Icon="Bars" FontSize="14" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
           </Button>
           <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-            <fa:IconBlock Icon="Compass" FontSize="11" Foreground="{DynamicResource ThemeAccentBrush}" Margin="0,0,8,0" />
+            <fa:IconBlock Icon="Compass" FontSize="12" Foreground="{DynamicResource ThemeAccentBrush}" Margin="0,0,8,0" />
             <TextBlock Name="breadcrumbRootLabel" Text="Home" Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="11" VerticalAlignment="Center" />
             <TextBlock Name="breadcrumbSeparator" Text="  ›  " Foreground="{DynamicResource ThemeTextMutedBrush}" FontSize="12" VerticalAlignment="Center" />
             <TextBlock Name="breadcrumbLabel" Text="Home" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" />
           </StackPanel>
           <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-            <Button Name="btnSearch" ToolTip="Global Search (Ctrl+K)" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" Click="BtnSearch_Click">
+            <Button Name="btnSearch" ToolTip="Global Search (Ctrl+K)" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" VerticalAlignment="Center" Click="BtnSearch_Click">
               <fa:IconBlock Icon="Search" FontSize="12" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
             </Button>
-            <Button Name="btnEllie" ToolTip="Ellie AI Assistant" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" Click="BtnEllie_Click">
+            <Button Name="btnEllie" ToolTip="Ellie AI Assistant" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" VerticalAlignment="Center" Click="BtnEllie_Click">
               <fa:IconBlock Icon="Robot" FontSize="12" Foreground="{StaticResource AccentBlueBrush}" />
             </Button>
-            <Button Name="btnThemeToggle" ToolTip="Toggle Dark/Light Mode" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" Click="BtnThemeToggle_Click">
-              <fa:IconBlock Name="themeToggleIcon" Icon="Moon" FontSize="12" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+            <Button Name="btnThemeToggle" ToolTip="Toggle Dark/Light Mode" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" VerticalAlignment="Center" Click="BtnThemeToggle_Click">
+              <fa:IconBlock Name="themeToggleIcon" Icon="Moon" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
             </Button>
-            <Button Name="btnNotify" ToolTip="Notifications" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" Click="BtnNotify_Click">
+            <Button Name="btnNotify" ToolTip="Notifications" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,2,0" VerticalAlignment="Center" Click="BtnNotify_Click">
               <fa:IconBlock Icon="Bell" FontSize="12" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
             </Button>
-            <Button Name="btnLock" ToolTip="Lock Session (Ctrl+L)" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,8,0" Click="BtnLock_Click">
+            <Button Name="btnLock" ToolTip="Lock Session (Ctrl+L)" Style="{StaticResource IconButtonStyle}" Width="30" Height="30" Margin="0,0,8,0" VerticalAlignment="Center" Click="BtnLock_Click">
               <fa:IconBlock Icon="Lock" FontSize="12" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
             </Button>
-            <Border Width="30" Height="30" CornerRadius="15" ToolTip="My Account" Cursor="Hand">
+            <Border Width="30" Height="30" CornerRadius="15" ToolTip="My Account" Cursor="Hand" VerticalAlignment="Center">
               <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                   <GradientStop Color="#60A5FA" Offset="0" />

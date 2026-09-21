@@ -138,28 +138,13 @@ public partial class EmergencyContactsPage : UserControl, IRefreshable
         if (_selectedId.HasValue) OpenEditor(_selectedId.Value);
     }
 
-    private async void BtnNew_Click(object sender, RoutedEventArgs e)
+    private void BtnNew_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new EmergencyContactWindow();
-        var adapter = new DialogContentAdapter(dlg);
-
-        var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Contact", IconChar.Save,
-            (s, args) =>
-            {
-                NavigationService.Instance.NavigateBackFromFullscreen("EmergencyContacts", refreshOnReturn: true);
-            });
-
-        NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+        var dlg = new EmergencyContactWindow { Owner = Window.GetWindow(this) };
+        if (dlg.ShowDialog() == true)
         {
-            Title = "Add Emergency Contact",
-            Subtitle = "Register a new emergency hotline or agency",
-            OriginRoute = "EmergencyContacts",
-            Content = adapter,
-            Icon = IconChar.PhoneSquareAlt,
-            ToolbarItems = new List<UIElement> { saveButton },
-            ShowSideToolbar = false,
-            OnSaved = () => RefreshData()
-        });
+            RefreshData();
+        }
     }
 
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
@@ -167,28 +152,13 @@ public partial class EmergencyContactsPage : UserControl, IRefreshable
         if (_selectedId.HasValue) OpenEditor(_selectedId.Value);
     }
 
-    private async void OpenEditor(int id)
+    private void OpenEditor(int id)
     {
-        var dlg = new EmergencyContactWindow(id);
-        var adapter = new DialogContentAdapter(dlg);
-
-        var saveButton = FullscreenToolbarHelper.CreateToolbarButton("Save Changes", IconChar.Save,
-            (s, args) =>
-            {
-                NavigationService.Instance.NavigateBackFromFullscreen("EmergencyContacts", refreshOnReturn: true);
-            });
-
-        NavigationService.Instance.NavigateToFullscreen(new FullscreenViewConfig
+        var dlg = new EmergencyContactWindow(id) { Owner = Window.GetWindow(this) };
+        if (dlg.ShowDialog() == true)
         {
-            Title = "Edit Emergency Contact",
-            Subtitle = "Update contact information",
-            OriginRoute = "EmergencyContacts",
-            Content = adapter,
-            Icon = IconChar.Edit,
-            ToolbarItems = new List<UIElement> { saveButton },
-            ShowSideToolbar = false,
-            OnSaved = () => RefreshData()
-        });
+            RefreshData();
+        }
     }
 
     private void BtnCopyPhone_Click(object sender, RoutedEventArgs e)
